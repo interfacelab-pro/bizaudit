@@ -1,378 +1,1264 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BizAudit — Cold Prospect Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-.fw{border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden;background:var(--color-background-primary);font-family:var(--font-sans)}
-.fw-top{background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);padding:10px 18px;display:flex;align-items:center;justify-content:space-between}
-.fw-body{display:grid;grid-template-columns:200px 1fr}
-.fw-nav{background:var(--color-background-secondary);border-right:0.5px solid var(--color-border-tertiary);padding:8px 0;min-height:520px;overflow-y:auto}
-.nav-sec{font-size:10px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--color-text-tertiary);padding:8px 14px 3px}
-.ni{display:flex;align-items:center;gap:7px;padding:6px 12px;cursor:pointer;border-left:2px solid transparent}
-.ni.active{border-left-color:var(--ncolor);background:var(--color-background-primary)}
-.ni:hover:not(.active){background:var(--color-background-primary)}
-.ni-dot{width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;flex-shrink:0}
-.ni-lbl{font-size:11.5px;line-height:1.3;flex:1;color:var(--color-text-secondary)}
-.ni.active .ni-lbl{color:var(--color-text-primary);font-weight:500}
-.ni-n{font-size:10px;color:var(--color-text-tertiary)}
-.nbar{height:2px;margin:1px 12px 2px;background:var(--color-border-tertiary);border-radius:1px;overflow:hidden}
-.nbf{height:100%;border-radius:1px;transition:width .3s}
-.fw-main{padding:18px 20px;overflow-y:auto;max-height:600px}
-.ph-badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 10px;border-radius:20px;margin-bottom:7px}
-.ph-title{font-size:16px;font-weight:500;margin-bottom:3px;color:var(--color-text-primary)}
-.ph-desc{font-size:12.5px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:6px}
-.pbar{height:2px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:14px;overflow:hidden}
-.pbf{height:100%;border-radius:2px;transition:width .3s}
-.step{border:0.5px solid var(--color-border-tertiary);border-radius:8px;margin-bottom:7px;overflow:hidden}
-.step-head{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;cursor:default}
-.chk{width:17px;height:17px;border-radius:4px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;border:1px solid var(--color-border-secondary);background:transparent}
-.chk.on{background:#16a34a;border-color:#16a34a}
-.chk svg{display:none}
-.chk.on svg{display:block}
-.sb{flex:1}
-.sn{font-size:13px;font-weight:500;color:var(--color-text-primary);line-height:1.4;margin-bottom:2px}
-.sh{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
-.dbtn{font-size:11px;color:var(--color-text-secondary);background:none;border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:2px 8px;cursor:pointer;flex-shrink:0;white-space:nowrap}
-.det{display:none;border-top:0.5px solid var(--color-border-tertiary);padding:10px 12px 12px 38px}
-.dl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-secondary);margin-bottom:4px;margin-top:8px}
-.dl:first-child{margin-top:0}
-.di{font-size:12px;color:var(--color-text-secondary);line-height:1.6;padding-left:10px;position:relative;margin-bottom:1px}
-.di::before{content:'·';position:absolute;left:1px;color:var(--color-text-tertiary)}
-.ex{background:var(--color-background-secondary);border-radius:6px;padding:8px 10px;margin-top:6px;font-size:12px;color:var(--color-text-secondary);line-height:1.6;border-left:2px solid var(--excolor,#888)}
-.ex-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
-.tag{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500}
-.t-tool{background:#e8f0fe;color:#0c447c}
-.t-out{background:#e6f4ea;color:#27500a}
-.fw-foot{display:flex;justify-content:space-between;padding:10px 20px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
-.fw-foot button{font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer}
-.b-sec{background:transparent;border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary)}
-.b-pri{border:none;color:#fff;font-weight:500}
-</style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<div class="fw">
-<div class="fw-top">
-  <span style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Cold Prospect Audit — Public Data Only</span>
-  <span style="font-size:12px;color:var(--color-text-secondary)" id="meta">0 / 0 done</span>
-</div>
-<div class="fw-body">
-<div class="fw-nav" id="nav"></div>
-<div style="display:flex;flex-direction:column">
-<div class="fw-main" id="main"></div>
-<div class="fw-foot">
-  <button class="b-sec" id="bprev" onclick="go(-1)">← Back</button>
-  <button class="b-pri" id="bnext" onclick="go(1)">Next →</button>
-</div>
-</div>
-</div>
+  :root {
+    --sidebar-bg: #0d1117;
+    --sidebar-border: rgba(255,255,255,0.07);
+    --sidebar-text: #8b949e;
+    --sidebar-active-bg: rgba(255,255,255,0.06);
+    --main-bg: #f6f8fa;
+    --card-bg: #ffffff;
+    --text-primary: #1c2128;
+    --text-secondary: #57606a;
+    --text-tertiary: #8c959f;
+    --border: #d0d7de;
+    --border-light: #e8eaed;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--main-bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: var(--sidebar-bg);
+    color: #fff;
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--sidebar-border);
+    flex-shrink: 0;
+  }
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar-logo {
+    width: 28px; height: 28px;
+    background: #2563eb;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; color: #fff;
+  }
+  .topbar-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .topbar-sub {
+    font-size: 13px;
+    color: var(--sidebar-text);
+    margin-left: 6px;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #8b949e;
+  }
+  .progress-pill span { color: #fff; font-weight: 500; }
+  .overall-bar-wrap {
+    width: 120px;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .overall-bar {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ─── LAYOUT ─── */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    overflow-y: auto;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    padding: 16px 0 32px;
+  }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  .sidebar-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    padding: 8px 20px 6px;
+    margin-top: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); }
+  .nav-item.active {
+    background: var(--sidebar-active-bg);
+    border-left-color: var(--ph-color);
+  }
+  .nav-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    border: 1.5px solid var(--ph-color);
+    color: var(--ph-color);
+  }
+  .nav-item.active .nav-num {
+    background: var(--ph-color);
+    color: #fff;
+  }
+  .nav-info { flex: 1; min-width: 0; }
+  .nav-label {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nav-item.active .nav-label { color: rgba(255,255,255,0.9); font-weight: 500; }
+  .nav-count { font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 1px; }
+  .nav-item.active .nav-count { color: rgba(255,255,255,0.4); }
+  .nav-pbar {
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    margin: 0 16px 2px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .nav-pfill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    padding: 32px 40px 60px;
+    max-width: 860px;
+  }
+
+  .phase-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .phase-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .phase-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .phase-desc {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 10px;
+    max-width: 620px;
+  }
+
+  .phase-progress-bar {
+    height: 3px;
+    background: var(--border-light);
+    border-radius: 3px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .phase-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s;
+  }
+
+  /* ─── STEP CARDS ─── */
+  .step-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .step-card:hover { border-color: #b0b8c4; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .step-card.done { opacity: 0.65; }
+
+  .step-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    cursor: default;
+  }
+
+  .checkbox {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    background: #fff;
+  }
+  .checkbox:hover { border-color: #2563eb; }
+  .checkbox.checked {
+    background: #16a34a;
+    border-color: #16a34a;
+  }
+  .checkbox svg { display: none; }
+  .checkbox.checked svg { display: block; }
+
+  .step-body { flex: 1; }
+  .step-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    line-height: 1.4;
+  }
+  .step-card.done .step-name { text-decoration: line-through; color: var(--text-secondary); }
+  .step-hint {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .detail-btn {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--main-bg);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .detail-btn:hover { background: #fff; border-color: var(--border); color: var(--text-primary); }
+  .detail-btn.open { background: #fff; border-color: var(--border); }
+
+  /* ─── STEP DETAIL ─── */
+  .step-detail {
+    display: none;
+    padding: 0 18px 18px 52px;
+    border-top: 1px solid var(--border-light);
+  }
+  .step-detail.visible { display: block; }
+
+  .detail-section { margin-top: 14px; }
+  .detail-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 8px;
+  }
+
+  .check-list { list-style: none; }
+  .check-list li {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding: 3px 0 3px 18px;
+    position: relative;
+  }
+  .check-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    top: 4px;
+  }
+
+  /* ─── EXAMPLE BOX ─── */
+  .example-box {
+    background: #f0f6ff;
+    border: 1px solid #c8ddf8;
+    border-left: 3px solid var(--ph-color, #2563eb);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-top: 4px;
+  }
+  .example-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ph-color, #2563eb);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .example-label::before {
+    content: '';
+    width: 14px; height: 14px;
+    background: var(--ph-color, #2563eb);
+    border-radius: 3px;
+    opacity: 0.15;
+  }
+  .example-text {
+    font-size: 13.5px;
+    color: #1e3a5f;
+    line-height: 1.75;
+  }
+
+  /* ─── TAG PILLS ─── */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .tag {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .tag-tool { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .tag-out { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+  /* ─── OUTPUT ROW ─── */
+  .output-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f9fafb;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    margin-top: 4px;
+  }
+  .output-icon {
+    width: 20px; height: 20px;
+    background: #d1fae5;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .output-text { font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* ─── FOOTER NAV ─── */
+  .footer-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border-light);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .btn-ghost {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+  .btn-ghost:hover { background: var(--main-bg); }
+  .btn-primary {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 20px 18px 48px; }
+    .topbar-sub { display: none; }
+    .overall-bar-wrap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">B</div>
+    <span class="topbar-name">BizAudit</span>
+    <span class="topbar-sub">Cold Prospect Framework — Public Data Only</span>
+  </div>
+  <div class="topbar-right">
+    <div class="progress-pill"><span id="done-count">0</span> / <span id="total-count">0</span> steps done</div>
+    <div class="overall-bar-wrap"><div class="overall-bar" id="overall-bar"></div></div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main"></main>
 </div>
 
 <script>
-var PH=[
-{c:'#1a6ef7',n:'Business discovery',d:'Identify and document the business entirely from public search results before opening any tool.',
-steps:[
-{n:'Find and confirm the business on Google',h:'Search the exact business name to see what Google already knows about them.',
-checks:['Type the business name into Google — does a knowledge panel appear on the right?','Open Google Maps and search the name — is there a pin with reviews and photos?','Note whether "Permanently closed" appears anywhere','Check the top 3 search result URLs — are they the business website, a directory, or something else?'],
-eg:{label:'Example',color:'#1a6ef7',text:'Search "Al-Fatah Superstore Lahore" on Google. A knowledge panel appears showing 4.1 stars, 312 reviews, address on Main Boulevard. On Maps the pin is placed correctly. No "permanently closed" label. Top results: their website alfattah.com, a Facebook page, and a Yelp listing. This confirms the business is active with a decent online footprint.'},
-tools:['Google Search','Google Maps'],out:'Business confirmed — note name, city, industry, and all visible URLs'},
-
-{n:'Record every publicly visible data point',h:'In one pass, copy down everything Google surfaces without clicking anything yet.',
-checks:['Exact business name as shown on Maps','Full address and the neighborhood/area it is in','Phone number visible on the knowledge panel','Website URL listed on the panel','Category label (e.g. "Grocery store", "Hair salon")','Star rating and total review count','Hours of operation','Number of photos visible in the panel photo strip'],
-eg:{label:'Example',color:'#1a6ef7',text:'From the knowledge panel for "Yasmin Boutique Lahore": Name — Yasmin Boutique. Address — 23 MM Alam Road, Gulberg III. Phone — 0300-1234567. Website — none listed. Category — Women\'s clothing store. Rating — 3.8 stars, 47 reviews. Hours — 11am–9pm daily. Photos — 8 photos. Insight: No website is a critical gap. Only 47 reviews is low for a retail clothing store.'},
-tools:['Google Maps','Google Search'],out:'Baseline data sheet with all 8 data points recorded'}
-]},
-
-{c:'#0f9d58',n:'Google Business Profile',d:'Everything here is audited from the public Maps listing — no GBP dashboard access needed.',
-steps:[
-{n:'Check if the listing is claimed or unclaimed',h:'An unclaimed listing has an "Own this business?" link visible at the bottom of the panel.',
-checks:['On the Google Maps panel, scroll to the bottom — does "Own this business?" appear?','If unclaimed: the owner has zero control over the listing — a major vulnerability','If claimed: check if it shows a "Verified" checkmark next to the business name','Search for duplicate listings by adding "near [city]" — sometimes two listings exist for the same place'],
-eg:{label:'Example',color:'#0f9d58',text:'Searching "Karachi Bites Restaurant" on Maps shows the panel with "Own this business?" at the bottom. This means the listing is UNCLAIMED. Anyone can claim it, including a competitor. The business is missing the ability to respond to reviews, add posts, update hours, or add photos. This is a critical finding — it\'s free to fix and takes 5 minutes to initiate.'},
-tools:['Google Maps'],out:'Claim status — claimed / unclaimed / unverified'},
-
-{n:'NAP consistency check across 5 sources',h:'Name, Address, Phone must be identical on every platform. Even small differences hurt local search ranking.',
-checks:['Copy the NAP from Google Maps','Open Yelp and search the business — does the address match exactly? (St vs Street, no. vs #)','Open Facebook and find their page — does the phone number match?','Check Apple Maps (maps.apple.com) — same address format?','Visit their website footer if they have one — same phone and address?','Note every single difference, even punctuation'],
-eg:{label:'Example',color:'#0f9d58',text:'Google Maps shows: "Shop 4, Liberty Market, Lahore." Yelp shows: "Liberty Market Lahore." Facebook shows: "4 Liberty Market, Lahore, Punjab." Website footer shows: "Liberty Mkt, Lahore, 0300-111-2222." That is 4 different formats. Google expects exact matches. Each inconsistency weakens their local ranking signal. The fix is to standardize every listing to one exact format.'},
-tools:['Google Maps','Yelp','Facebook','Apple Maps (maps.apple.com)'],out:'NAP comparison table — list every inconsistency found'},
-
-{n:'Categories, attributes, and description',h:'From the public Maps panel, review how the listing is described and categorized.',
-checks:['What is the primary category shown on the panel? Is it the most specific option available?','Click "See more" on the panel — are any additional categories listed?','Is a business description visible? Does it mention the city and key services?','Are any attributes visible? (Women-owned, wheelchair accessible, delivery available etc.)','Do they have a website linked? A booking link? An order online button?'],
-eg:{label:'Example',color:'#0f9d58',text:'A dental clinic in Karachi is listed as "Doctor" (the generic category) instead of "Dentist" or "Dental clinic." This means they appear in far fewer relevant searches. The description says only "We provide dental services." No attributes set. No booking link. Compare to a competitor showing "Dentist — General dentistry, teeth whitening, orthodontics. Serving DHA Karachi since 2010." The competitor wins every time on category and content signals.'},
-tools:['Google Maps'],out:'Category and completeness score — rate out of 5'},
-
-{n:'Photos audit',h:'Count and assess every photo visible publicly on their Maps listing.',
-checks:['Click the photo strip on the panel — how many total photos are there?','Are any photos uploaded by the owner vs customers? (check the source label)','Do photos show the interior, exterior, products, team, and menu/service work?','Are photos recent or clearly old and low quality?','How many photos do their top 2 competitors have?'],
-eg:{label:'Example',color:'#0f9d58',text:'A restaurant in Islamabad has 6 photos total — all uploaded by customers on their phones, dim and blurry. No photos of the interior, menu, or food professionally shot. Competitor 1 has 94 photos. Competitor 2 has 47 photos. Google data shows businesses with 100+ photos get 5x more direction requests. This business is leaving enormous visibility on the table. Cost to fix: zero. A smartphone and 30 minutes.'},
-tools:['Google Maps'],out:'Photo count and quality assessment with competitor comparison'},
-
-{n:'Reviews audit — volume, rating, recency, responses',h:'Analyze all publicly visible reviews without needing any access.',
-checks:['Total review count — is this competitive for the industry in their city?','Average star rating — below 4.0 means customers are selecting competitors instead','Click "Most recent" — when was the last review posted?','Scroll through 10-15 reviews — are there recurring complaints?','Is the owner responding to reviews? To negative ones specifically?','Any reviews that look fake? (5-stars with no text, multiple reviews posted same day)'],
-eg:{label:'Example',color:'#0f9d58',text:'A beauty salon has 23 reviews averaging 3.6 stars. Last review was 4 months ago. Three different reviews mention "long wait times." Owner has responded to 2 out of 23 reviews — both were positive, all negatives ignored. The 3.6 average means in a Google local pack of 3 results, most users will choose either of the two competitors both showing 4.4+. The wait-time complaint pattern suggests an operational issue, not just a marketing one.'},
-tools:['Google Maps'],out:'Review health summary — rating, volume, recency, response rate, recurring themes'}
-]},
-
-{c:'#e37400',n:'Website audit',d:'Every tool used here is free and public-facing. No login to the business\'s accounts required.',
-steps:[
-{n:'First impressions and homepage clarity',h:'Open the website as a first-time visitor and ask: do I understand this business in 5 seconds?',
-checks:['Does the homepage headline clearly say what they do and where?','Is there a visible phone number or CTA above the scroll line?','Open on your phone — does it load and display correctly on mobile?','Does the copyright year in the footer suggest the site is maintained?','Is there any element that feels broken, outdated, or unprofessional?'],
-eg:{label:'Example',color:'#e37400',text:'Opening herbaldoc.pk on mobile shows a desktop-only layout that requires horizontal scrolling. The headline says "Welcome to Our Website" — nothing about what they offer or where they are located. Phone number is buried on the Contact page (3 clicks away). Footer copyright says 2019. A visitor on mobile — which is 70%+ of web traffic in Pakistan — will bounce within 8 seconds. The fix: update the headline to "Herbal clinic in Lahore — book a consultation today" and add a click-to-call button in the header.'},
-tools:['Browser (visit site on your phone)'],out:'First impressions verdict with screenshot of the above-the-fold view'},
-
-{n:'Performance — run PageSpeed Insights',h:'Go to pagespeed.web.dev, enter the URL, and run for both mobile and desktop.',
-checks:['Mobile performance score — below 50 is critical, 50-89 is needs work, 90+ is good','Desktop performance score','Note the top 3 "Opportunities" listed on the report — these are the biggest speed fixes','Is the LCP (Largest Contentful Paint) shown? Over 4 seconds is a major SEO issue','Is there a CLS (layout shift) score? Over 0.25 = things jumping around on load'],
-eg:{label:'Example',color:'#e37400',text:'PageSpeed result for a Karachi law firm website: Mobile score 23/100. Desktop score 51/100. Top 3 opportunities: 1) Eliminate render-blocking resources (saves 3.1s). 2) Properly size images — their homepage banner is a 4MB raw photo (saves 2.8s). 3) Serve images in next-gen formats. LCP is 8.2 seconds on mobile. For context, Google targets under 2.5s. Every extra second of load time reduces conversions by ~7%. This site is losing a significant portion of visitors before the page even loads.'},
-tools:['PageSpeed Insights (pagespeed.web.dev — free)'],out:'Performance scores screenshot + top 3 specific issues to fix'},
-
-{n:'SEO basics — visible from the browser',h:'Check the most critical on-page SEO elements without any tools — just the browser.',
-checks:['Right-click the homepage > View Page Source > search for <title> — what does it say? Does it include the business name and city?','In the source, search for "description" — is there a meta description? Is it under 160 characters?','On the live page, is there one clear H1 heading? Does it match what the business does?','Type site:domain.com in Google — how many pages are indexed? If under 5, that is a serious visibility gap','Do their images have descriptive filenames? (right-click an image > inspect to see the file name — "DSC00123.jpg" vs "lahore-dental-clinic-interior.jpg")'],
-eg:{label:'Example',color:'#e37400',text:'Checking a restaurant website: Title tag reads "Home — Welcome" — no restaurant name, no city. Meta description is missing entirely. Google has indexed only 3 pages for their domain. The H1 on the homepage says "Food is Life" — a slogan, not a searchable phrase. Compare to a competitor whose title reads "Best BBQ Restaurant in Gulberg Lahore | Menu & Reservations" — that single title tag alone explains the traffic gap between the two businesses.'},
-tools:['Browser (View Page Source)','Google Search (site: command — free)'],out:'SEO basics checklist — pass/fail on 5 items'},
-
-{n:'Technical check — SSL, errors, and sitemap',h:'Three quick public checks that reveal major technical problems.',
-checks:['Does the URL start with https:// (secure)? If http:// only — browsers flag it as "Not Secure"','Visit domain.com/sitemap.xml — does a sitemap exist? If not, Google may not be finding all pages','Visit domain.com/robots.txt — does it accidentally block Googlebot with "Disallow: /"?','Click 3-4 internal links on the site — do any result in a 404 error page?','Check ssllabs.com/ssltest — enter the domain — what grade is the SSL certificate?'],
-eg:{label:'Example',color:'#e37400',text:'A home services company in Lahore: Site loads on http:// without automatic redirect to https — Chrome shows "Not Secure" in the address bar, which immediately destroys customer trust. sitemap.xml returns a 404. robots.txt blocks all crawlers with "Disallow: /" — meaning Google literally cannot index any page on the site. These three issues together explain why the site has zero organic search traffic despite being 3 years old. All three are fixable in under an hour by any developer.'},
-tools:['Browser','SSL Labs (ssllabs.com/ssltest — free)'],out:'Technical health checklist — note any critical errors found'},
-
-{n:'Design and trust signals',h:'Assess whether the website builds or destroys customer trust.',
-checks:['Are there customer testimonials or reviews anywhere on the site?','Is there an About section with real photos of the team or owner?','Are any certifications, awards, or credentials displayed?','Is pricing visible or at least a "starting from" range?','Does the design look modern, or is it clearly from 10+ years ago?','Install Wappalyzer (free Chrome extension) — what platform is the site built on? This tells you how easy the fixes will be'],
-eg:{label:'Example',color:'#e37400',text:'A private school website: No photos of teachers or campus — just stock images. No testimonials from parents. No mention of board affiliation or curriculum (Cambridge, Matric, IB). No fee structure or admission process. A parent visiting this site has zero trust signals to act on. Compare to a competing school whose homepage shows real classroom photos, a quote from a parent, their O-Level result statistics, and a clear "Book a Tour" button. The second school wins the inquiry before price is even discussed.'},
-tools:['Browser','Wappalyzer (free Chrome extension)'],out:'Trust signal audit — present/missing/weak for each element'}
-]},
-
-{c:'#7c3aed',n:'LLM visibility (GEO)',d:'Manually test how the business appears when real people ask AI tools about their category.',
-steps:[
-{n:'Test on ChatGPT — category and name searches',h:'Run two types of searches and screenshot both results.',
-checks:['Search: "best [their service] in [their city]" — does this business appear in any list?','Search: the exact business name — does ChatGPT know anything about it?','If it appears: is the information accurate (address, services, description)?','If it appears: is the framing positive or neutral?','Note which competitors appear that this business does not'],
-eg:{label:'Example',color:'#7c3aed',text:'Search on ChatGPT: "best physiotherapy clinics in Lahore." Result lists 5 clinics with descriptions. One business we are auditing — Rehab Plus — is not mentioned despite having 4.3 stars on Google and being one of the larger clinics. The 5 clinics that do appear all have Wikipedia mentions, are cited in Dawn/The News articles, or have detailed profiles on health directories like Marham.pk. Rehab Plus has none of these. This is the exact gap to fix.'},
-tools:['ChatGPT (free tier)'],out:'Screenshot of ChatGPT result — appearing or not'},
-
-{n:'Test on Google Gemini — same searches',h:'Gemini draws heavily from Google\'s own data including the GBP, so results differ from ChatGPT.',
-checks:['Run the same two searches on Gemini','Does Gemini pull from their Google Maps data?','Does an "AI Overview" appear at the top of a Google Search for their business name?','Does Gemini recommend any competitors that this business should be competing with?'],
-eg:{label:'Example',color:'#7c3aed',text:'Gemini search for "wedding photographers in Karachi": returns a list of 4 photographers with brief descriptions. One photographer appears prominently because their GBP is complete, they have 200+ reviews, and their website has detailed structured data (Schema markup for a Photography service). The business we are auditing has 18 reviews and no Schema markup — Gemini ignores them entirely. The lesson: Gemini rewards GBP completeness more than ChatGPT does.'},
-tools:['Google Gemini (gemini.google.com — free)','Google Search (check for AI Overviews)'],out:'Screenshot of Gemini result — note if it pulls from GBP data'},
-
-{n:'Test on Perplexity — check what sources it cites',h:'Perplexity is uniquely useful because it shows its sources, revealing which websites are seen as authorities.',
-checks:['Run "best [service] in [city]" on Perplexity','Look at the numbered sources listed below the answer — what sites are being cited?','Is the business website among the cited sources?','Which directories or news sites are being cited for competitors?','Note any source that appears repeatedly — that is a high-authority site the business should appear on'],
-eg:{label:'Example',color:'#7c3aed',text:'Perplexity result for "best accountants in Islamabad" cites 6 sources: Zameen.com business directory, Pakistan Today business listings, ICAP.org member directory, and 3 individual firm websites. The firm we are auditing is not cited anywhere. Two competitors appear because they are listed on ICAP.org and were featured in an Express Tribune article. Recommendation: get listed on ICAP directory and pitch a local business journalist for a feature — these two actions directly improve AI citation frequency.'},
-tools:['Perplexity (perplexity.ai — free)'],out:'List of sources Perplexity cited — note which apply to this business'}
-]},
-
-{c:'#0891b2',n:'Local SEO and citations',d:'Map the public citation footprint by manually checking each directory.',
-steps:[
-{n:'Directory presence check',h:'Check the 8 most important public directories for this business. No login needed — just search.',
-checks:['Yelp: search business name — listed? Is the info accurate and has the owner added photos?','Apple Maps: go to maps.apple.com and search — does the listing appear with correct details?','Bing Maps (bing.com/maps): is the listing present with correct category and address?','Facebook: does a Facebook Business Page exist? Is the "About" section complete with address and hours?','Yellow Pages Pakistan (yp.com.pk) or regional equivalent: are they listed?','Industry-specific directory: TripAdvisor for hospitality, Shifa/Marham for healthcare, Zameen for real estate — check whichever applies','Any duplicate listings on Google Maps? (search name + city — do 2 pins appear?)'],
-eg:{label:'Example',color:'#0891b2',text:'Auditing a restaurant in Karachi: Google Maps — listed, 4.1 stars. Yelp — not found. Apple Maps — listed but shows an old phone number. Bing Maps — listed correctly. Facebook — page exists but no address entered, only a phone number. FoodPanda/Zomato — not listed (major gap for food businesses). No duplicate listings found. The Apple Maps phone number mismatch means iPhone users calling from Maps reach a disconnected number. That is lost bookings every single day.'},
-tools:['Yelp','Apple Maps (maps.apple.com)','Bing Maps (bing.com/maps)','Facebook','Industry-specific directories'],out:'Directory presence table — found/not found/has errors for each platform'},
-
-{n:'Backlink and domain authority check',h:'Use free public tools to understand how much authority their website has.',
-checks:['Go to moz.com/domain-analysis — enter their domain — note the Domain Authority (DA) score','Go to ahrefs.com/website-authority-checker — enter domain — note the Domain Rating (DR)','On Moz, look at "Top Pages by Links" — what pages on their site have the most backlinks?','Note how many total referring domains they have — under 10 means very weak authority','Compare these numbers to one competitor domain for context'],
-eg:{label:'Example',color:'#0891b2',text:'A Lahore-based IT company: DA 8, DR 6, 4 referring domains. Competitor A: DA 22, DR 19, 31 referring domains. Competitor B: DA 31, DR 27, 68 referring domains. The IT company\'s site exists but has almost no authority signals. The competitor links come from: local tech meetup event pages, a Dawn Tech article, PSEB.org.pk membership listing, and GitHub profile linking back to the site. All of these are realistic targets for the IT company to replicate.'},
-tools:['Moz Domain Analysis (moz.com/domain-analysis — free)','Ahrefs Authority Checker (free, no login)'],out:'Authority snapshot — DA, DR, referring domain count vs 1 competitor'},
-
-{n:'Keyword visibility check',h:'See what search terms they currently rank for using free public tools.',
-checks:['Go to ubersuggest.com — enter their domain — view the "Top SEO Keywords" table for free','Note the top 5 keywords they rank for — are these the right keywords for their business?','Look at keyword positions — anything ranked 4-15 is close to page 1 and worth optimizing','Go to Google and search "[their service] + [their city]" — do they appear in the local 3-pack map results?','Search their exact business name — do they own the first page or does a competitor or directory outrank them for their own name?'],
-eg:{label:'Example',color:'#0891b2',text:'Ubersuggest shows a Rawalpindi tutoring centre ranking for 18 keywords, all with position 20+. Their top keyword is their own business name. They do not appear in the Google local 3-pack for "tutoring centre Rawalpindi" — that pack shows 3 competitors. However, they rank position 11 for "O-level tutor Rawalpindi" and position 14 for "A-level classes Rawalpindi" — both are one page of optimization away from appearing on page 1. These are the highest-value quick wins.'},
-tools:['Ubersuggest (ubersuggest.com — free tier)','Google Search (manual SERP check)'],out:'Top 5 current keywords + 3 near-page-1 opportunities identified'}
-]},
-
-{c:'#db2777',n:'Social media audit',d:'Everything assessed from public-facing profiles only.',
-steps:[
-{n:'Find all their profiles and rate completeness',h:'Search the business name on every major platform and document what you find.',
-checks:['Facebook: does a business page exist? Does it have a profile photo, cover photo, address, phone, website, and hours filled in?','Instagram: is there a business account? Is the bio complete with a link?','LinkedIn: company page? Especially important for B2B businesses','TikTok: any presence? Increasingly important for restaurants, retail, beauty','YouTube: a channel? Even 5 good videos can drive significant local awareness','Search namecheckr.com — are they consistent on username/handle across platforms?'],
-eg:{label:'Example',color:'#db2777',text:'A clothing boutique in Lahore: Facebook page exists — 2,300 followers, but no website link, no address, and hours say "always open" (clearly never updated). Instagram: @yasminboutiquelhr — 890 followers, bio says only "Boutique" with no location or link. No TikTok. No YouTube. The incomplete Facebook page means customers cannot click through to a website, cannot find the address, and cannot check hours — all basic actions that drive foot traffic. Fixing all three fields takes 3 minutes.'},
-tools:['Facebook','Instagram','LinkedIn','TikTok','YouTube','Namecheckr.com (free)'],out:'Profile completeness table — score each platform 1-5'},
-
-{n:'Content quality and posting frequency',h:'Scroll through the last 30 days of posts on each active platform.',
-checks:['When was the most recent post? If over 30 days ago, the account reads as abandoned','What types of content are they posting: product photos, videos, promotions, stories?','Estimate engagement: divide the average likes+comments by follower count — above 3% is good, below 1% is poor','Is any content clearly outperforming the rest? (a video with 10x normal likes)','Is the content consistent in quality — same tone, branding, image style?'],
-eg:{label:'Example',color:'#db2777',text:'Last 30 days on their Instagram: 3 posts. One product photo (12 likes), one sale announcement (9 likes), one reposted quote (4 likes). 890 followers. Engagement rate: approximately 0.9% — very low. However, 6 months ago they posted a 30-second reel of a customer trying on an outfit which got 340 likes and 22 comments. That is 38% engagement on a single post, proving their audience responds to video. They have not posted a single reel since. This is the content gap — they found what works and stopped doing it.'},
-tools:['Instagram','Facebook (public posts)','TikTok'],out:'Content performance snapshot — posting frequency, avg engagement, best performing post type'}
-]},
-
-{c:'#b45309',n:'Brand identity',d:'Assess visual and messaging consistency entirely from public touchpoints.',
-steps:[
-{n:'Logo and visual consistency check',h:'Compare the logo and brand colors across every platform they appear on.',
-checks:['Is the same logo used on: website, GBP, Facebook, Instagram, Google Maps photos?','Does the logo look professional or like it was made with a free online tool?','Install ColorZilla (free Chrome extension) — sample the main color on their website. Then check their social profiles — is the same color used?','Install Fontanello (free Chrome extension) — what font is on the website? Is the same font style visible on their social posts?','Does the overall aesthetic feel consistent, or does each platform look like a different brand?'],
-eg:{label:'Example',color:'#b45309',text:'An Islamabad bakery: website uses a serif font with a pale pink color scheme. Instagram profile photo is a blurry photo of a cake — not a logo. Facebook uses a different logo version in blue and white. GBP shows a photo of the storefront with no logo visible. Each touchpoint looks like a different business. ColorZilla on the website shows #F2C4CE (pale pink). Instagram posts use white text on dark brown. No consistent color palette anywhere. A customer who finds them on Instagram then visits the website will question if it\'s the same business.'},
-tools:['Browser','ColorZilla (free Chrome extension)','Fontanello (free Chrome extension)'],out:'Brand consistency score — list specific inconsistencies with platform names'},
-
-{n:'Messaging and copy audit',h:'Copy their business descriptions from 3 sources and compare them side by side.',
-checks:['Copy their GBP description exactly as it appears on Maps','Copy their Facebook "About" section','Copy their website homepage headline and first paragraph','Paste all three into one document — are they saying the same things? Same tone?','Does any version mention the city they serve?','Is the value proposition (why choose them) clear in any of them?'],
-eg:{label:'Example',color:'#b45309',text:'Three descriptions for the same law firm: GBP — "Law firm providing legal services." Facebook About — "We are a team of experienced lawyers." Website homepage — "Justice, Integrity, Excellence." None of them mention Karachi. None mention their specializations (family law, corporate, criminal). None give a reason to choose them. Compare to a competitor: "Karachi\'s leading family law firm. 200+ cases resolved. Free first consultation." That one sentence answers who, where, what, and why — theirs answers none of these.'},
-tools:['Google Maps','Facebook','Browser'],out:'Side-by-side messaging comparison + a rewritten version they could use'}
-]},
-
-{c:'#059669',n:'Reputation and reviews',d:'Read and analyze all publicly visible reviews across platforms.',
-steps:[
-{n:'Multi-platform review audit',h:'Check every relevant platform for reviews — not just Google.',
-checks:['Google Maps: stars, count, how recent is the most recent review','Yelp: any reviews? What is the rating?','Facebook: are recommendations enabled? Any star rating visible?','Industry-specific platforms: TripAdvisor (food/travel), Marham (health), PakWheels (automotive), Zameen (real estate)','Note: which platforms have the most damaging negative reviews that are going unanswered?'],
-eg:{label:'Example',color:'#059669',text:'A hotel in Murree: Google — 4.2 stars, 180 reviews. TripAdvisor — 3.1 stars, 47 reviews. Most guests who had bad experiences went to TripAdvisor, not Google. The hotel has not responded to a single TripAdvisor review, including 3 reviews with titles like "Worst experience ever" and "Water was cold for 2 days." TripAdvisor is the first result when you search the hotel name — these unanswered negative reviews are the first thing a prospective guest reads. The owner does not know because they are not monitoring TripAdvisor.'},
-tools:['Google Maps','Yelp','Facebook','TripAdvisor','Marham/PakWheels/Zameen (as applicable)'],out:'Multi-platform rating table — stars and count per platform'},
-
-{n:'Sentiment themes and response rate',h:'Read 15-20 reviews across all platforms and identify patterns.',
-checks:['What do happy customers consistently mention? List the top 3 praise themes','What do unhappy customers consistently complain about? List the top 3 complaint themes','Is the owner responding to reviews — what % have responses?','Are negative reviews getting responses or being ignored?','Any reviews mentioning a specific staff member by name? (signals team quality issue)'],
-eg:{label:'Example',color:'#059669',text:'Reading 20 reviews for a salon in DHA Karachi: Positive themes: 1) Friendly staff specifically "Sana" mentioned in 4 reviews. 2) Good at hair color. 3) Clean environment. Negative themes: 1) Long waits with no updates. 2) Price changed at checkout from what was quoted. 3) Hard to book appointments — phone often unanswered. Owner response rate: 2 out of 20 reviews answered (both 5-star, all 1-2 star reviews ignored). The booking and pricing complaints are operational issues that no amount of marketing will fix — this insight goes directly in the report.'},
-tools:['Google Maps','TripAdvisor','Yelp'],out:'Sentiment summary — 3 praise themes, 3 complaint themes, response rate percentage'},
-
-{n:'Competitor review comparison',h:'Benchmark this business\'s reviews against the top 2 local competitors.',
-checks:['Find the top 2 competitors from Google Maps for the same category in the same city','Record: review count, average rating, most recent review date for each','What are competitors being praised for that this business is not?','Are competitors responding to reviews consistently while this business is not?','Calculate the review gap: how many reviews per month would close the gap in 12 months?'],
-eg:{label:'Example',color:'#059669',text:'Comparing 3 bakeries in Lahore: Our business — 34 reviews, 3.9 stars, last review 3 weeks ago. Competitor A — 312 reviews, 4.5 stars, review posted yesterday. Competitor B — 156 reviews, 4.3 stars, last review 4 days ago. Gap to Competitor A: 278 reviews. To close the gap in 12 months, the business needs 23 new reviews every month. At their current rate (estimated 2-3 per month) they will fall further behind. A simple review request system — a QR code at checkout and a follow-up WhatsApp message — could realistically achieve 8-10 per month.'},
-tools:['Google Maps'],out:'Competitor review benchmark table + monthly target to close the gap'}
-]},
-
-{c:'#6d28d9',n:'Competitor intelligence',d:'Map the competitive landscape entirely from public search results and Maps.',
-steps:[
-{n:'Identify top 3-5 competitors from Google',h:'Use Google Search and Maps to find exactly who is winning in their market.',
-checks:['Google "[their service] in [their city]" — which businesses appear in the local 3-pack (map results)?','These 3-pack businesses are the direct competitors stealing their leads every day','Scroll to organic results — which websites rank on page 1 that are local competitors?','On Google Maps, zoom to their area and look for same-category businesses nearby — note the ones with most reviews','Note which competitors are running Google Ads (marked "Sponsored" above organic results)'],
-eg:{label:'Example',color:'#6d28d9',text:'Searching "AC repair service Lahore" on Google: Local 3-pack shows: 1) CoolTech Services — 4.6 stars, 203 reviews. 2) Arctic Air — 4.4 stars, 87 reviews. 3) Chill Zone HVAC — 4.1 stars, 44 reviews. The business we are auditing — FrostFix — does not appear in the 3-pack despite being in the same area. Two businesses are running Google Ads. FrostFix has 22 reviews and 3.8 stars — both below every competitor in the pack. Getting into the 3-pack requires improving review count and rating above Chill Zone (44 reviews, 4.1 stars) — that is the first milestone.'},
-tools:['Google Search','Google Maps'],out:'Competitor list with Maps URLs, review counts, and ratings'},
-
-{n:'Website comparison — what competitors do that this business does not',h:'Visit each competitor website and note specific advantages.',
-checks:['Does any competitor have a blog with local content? (search site:competitordomain.com)','Do any competitors have more pages indexed on Google?','Do competitor sites load faster? (run one competitor through PageSpeed for comparison)','Do any competitors have video content or better photos?','What trust signals do competitors show that this business lacks?','Run Moz free check on one main competitor — is their DA significantly higher?'],
-eg:{label:'Example',color:'#6d28d9',text:'Competitor A (CoolTech Services): website has a blog with 14 articles including "How to choose the right AC size for your home in Lahore" — this article ranks #2 on Google for that search. Their PageSpeed mobile score is 71 vs FrostFix\'s score of 29. They have 22 Google-indexed pages vs FrostFix\'s 4. Their site shows a "Licensed by AEDB" badge and 6 customer video testimonials. Every single one of these advantages is achievable for FrostFix — none require expensive technology or resources.'},
-tools:['Browser','Google Search (site: command)','PageSpeed Insights (free)','Moz free check'],out:'Competitor website advantage list — 5 specific things they have that this business does not'},
-
-{n:'Facebook Ad Library — are competitors advertising?',h:'Check the public Facebook Ad Library to see every ad a competitor is running right now.',
-checks:['Go to facebook.com/ads/library','Set country to Pakistan (or relevant country)','Search each competitor name','Are they running ads? How many? On Facebook or Instagram or both?','What offers or messages do the ads use? (note the hook — discount, urgency, free consultation etc.)','How long have the ads been running? (longer = the ad is working and profitable)'],
-eg:{label:'Example',color:'#6d28d9',text:'Facebook Ad Library for CoolTech Services: currently running 3 active ads. Ad 1: "AC Installation starting Rs.8,999 — Book this week" — running for 47 days (a long-running ad means it\'s profitable). Ad 2: "Free AC checkup before summer — Limited slots" — running 12 days. Ad 3: a video testimonial from a customer — running 31 days. From this, we learn: they are advertising on price, urgency, and social proof. They budget for ads consistently. FrostFix is competing with zero advertising. This insight helps frame the outreach report — "your competitor is actively running 3 ads targeting your exact customers right now."'},
-tools:['Facebook Ad Library (facebook.com/ads/library — free, no login)'],out:'Competitor ad summary — number of active ads, offers used, how long running'}
-]},
-
-{c:'#0284c7',n:'Operations signals',d:'Infer their operational tools and gaps from publicly observable signals only.',
-steps:[
-{n:'Booking and contact process — act as a customer',h:'Go through the actual process of trying to contact or book them. Count every friction point.',
-checks:['Starting from Google Maps, how many clicks to reach a phone number or booking option?','Does their website have a contact form? Submit a test message — does the confirmation work?','Is there an online booking tool embedded anywhere? Or does "book now" just link to a phone number?','Click the "Message" button on their Facebook page — does it auto-respond or does nothing happen?','WhatsApp link on website or GBP? (increasingly expected for Pakistani businesses)'],
-eg:{label:'Example',color:'#0284c7',text:'Testing contact journey for a tutoring centre: Step 1 — Google Maps, click website. Step 2 — website loads, no phone visible. Step 3 — click "Contact Us" in menu. Step 4 — form loads but requires name, phone, email, subject, course, level, and a message — 7 fields for an initial inquiry. Step 5 — submit form, white screen, no confirmation message (possible broken form). Total: 5 clicks, 7 form fields, and possibly broken. Competitor\'s contact path: click GBP, click WhatsApp button, chat opens. Total: 2 clicks. The friction gap is enormous.'},
-tools:['Browser','Your own phone (test the mobile experience)'],out:'Booking friction score — map out every step and time how long it takes'},
-
-{n:'Tech stack identification',h:'Identify what platform and tools the business website is built on using free browser tools.',
-checks:['Install Wappalyzer (free Chrome extension) and visit their site — what CMS? WordPress, Wix, Shopify, Squarespace, Custom?','Is there a live chat widget? (look for a chat bubble in the corner — note the brand: Tawk.to, Intercom, Tidio?)','Is there an email newsletter form anywhere on the site or social?','Right-click > View Page Source — search for "googletagmanager" — do they have Google Analytics/Tag Manager installed?','Search for "pixel" in the page source — do they have Facebook Pixel installed? (means they are running or can run retargeting ads)'],
-eg:{label:'Example',color:'#0284c7',text:'Wappalyzer on a healthcare clinic website reveals: WordPress with an Avada theme (from 2016 — very outdated, security risk). No live chat. No email signup anywhere. No Google Tag Manager found in source — meaning they have zero website analytics, they literally do not know how many people visit their site. No Facebook Pixel. This means they cannot measure marketing ROI, cannot retarget website visitors with ads, and cannot grow an email list. These are not expensive problems — Tag Manager and Analytics are free, Facebook Pixel is free, and Tawk.to live chat is free.'},
-tools:['Wappalyzer (free Chrome extension)','Browser View Page Source'],out:'Tech stack snapshot — platform, analytics, tracking, and tools in use'}
-]},
-
-{c:'#be185d',n:'Content gap analysis',d:'Identify content opportunities using free public research tools.',
-steps:[
-{n:'Keyword and question research',h:'Find what questions potential customers are searching that this business could be answering.',
-checks:['Go to answerthepublic.com — type their main service (e.g. "dental clinic") — what questions come up?','In Google, type their service + city and look at the "People Also Ask" box — what questions appear?','Type their service in Google and look at autocomplete suggestions — these are high-volume searches','Run their domain on ubersuggest.com (free tier) — what content currently ranks for them?','Search "[their service] in [city] blog" on Google — are any competitors publishing useful content?'],
-eg:{label:'Example',color:'#be185d',text:'AnswerThePublic for "eye specialist" returns: "how much does an eye test cost in Pakistan", "which eye doctor is best for children", "can an eye specialist detect diabetes", "what to expect at an eye exam." None of these questions are answered on the clinic website we are auditing. A competitor has a blog with 8 articles including one titled "Eye test cost in Lahore 2024" that ranks #3 on Google and brings in an estimated 400 visitors per month. Writing just 5 answers to these common questions would capture search traffic the clinic is completely missing.'},
-tools:['AnswerThePublic (answerthepublic.com — free tier)','Google Search (autocomplete + People Also Ask)','Ubersuggest (free)'],out:'Top 10 content topics — questions potential customers are asking right now'},
-
-{n:'Video and social content gaps',h:'Check YouTube and TikTok to see if competitors are winning with video content.',
-checks:['Search "[their service] [their city]" on YouTube — do any competitor videos appear?','Search the same on TikTok — local business video content is a major organic opportunity','Does the business have any video content at all? (check YouTube, Instagram Reels, TikTok)','What types of video content perform for competitors in this industry? (tutorials, before/after, testimonials, behind the scenes)'],
-eg:{label:'Example',color:'#be185d',text:'YouTube search for "furniture shop Lahore": One competitor has a channel with 23 videos showing furniture craftsmanship process, showroom walkthroughs, and customer home setups. Their most viewed video — "How our sofas are made" — has 14,000 views. This business ranks on page 1 of YouTube for "custom furniture Lahore." The business we are auditing has zero video content anywhere. A single 2-minute "showroom tour" video posted on YouTube, Instagram Reels, and TikTok simultaneously would create organic discoverability across 3 platforms for the cost of a smartphone and 20 minutes.'},
-tools:['YouTube (free search)','TikTok (free search)','Instagram (free search)'],out:'Video gap assessment — competitors using video successfully + 3 specific video ideas'}
-]},
-
-{c:'#16a34a',n:'Website improvement plan',d:'Build a concrete, evidence-based improvement plan from everything found above.',
-steps:[
-{n:'Rank the top 5 issues by impact',h:'From all phases above, select the 5 highest-impact fixes and put them in order.',
-checks:['Issue 1 is almost always the one costing the most leads per day — often: missing website, no mobile, unclaimed GBP, or under 10 reviews','Issue 2-5: rank by revenue impact, not technical complexity','For each issue: what is the before state (what you found), what is the after state (what it should be), and how long would it take a competent developer or freelancer to fix it','Note which issues the business can fix themselves for free vs which need a developer'],
-eg:{label:'Example',color:'#16a34a',text:'Priority ranking for a Faisalabad textile showroom: 1) No website — losing every customer who searches before visiting. Est. impact: 30-40% of potential walk-in customers decide beforehand. Fix: build a 5-page site. 2) 3.7 Google rating with no review responses — pushing customers to competitors. Fix: respond to all reviews + get 20 new reviews. 3) GBP unclaimed — cannot add products, hours, or posts. Fix: claim in 5 minutes free. 4) No WhatsApp link — biggest friction point for the Pakistani market. Fix: 10 minutes free. 5) PageSpeed mobile score 19 — website loads in 11 seconds. Fix: compress images, takes 30 minutes.'},
-tools:['All notes from previous phases'],out:'Priority fix list — 5 issues ranked with before/after description and effort estimate'},
-
-{n:'Create a before/after mockup for the homepage',h:'Show what one key page section would look like after improvements.',
-checks:['Take a screenshot of the current homepage above-the-fold view','Identify the single biggest visual/copy problem in that section','Recreate an improved version using Canva or any design tool','Write a new headline that: states what they do, mentions the city, has a clear benefit','Write new body text under 40 words that builds trust','Add a clear CTA button with specific action text ("Book Free Consultation" not just "Contact Us")'],
-eg:{label:'Example',color:'#16a34a',text:'Before — Homepage headline: "Welcome to Premier Dental." No city. No CTA visible. Stock photo of a tooth. After — Headline: "Karachi\'s trusted dental clinic — Painless treatment in DHA & Clifton." Subheadline: "1,200+ happy patients. Same-day appointments available." CTA button: "Book Your Appointment — It\'s Free." Background: real photo of the actual clinic interior. The before version could be any dental clinic anywhere. The after version is specific, trustworthy, and gives a visitor a reason to act immediately.'},
-tools:['Canva (canva.com — free)','Screenshot tool'],out:'Side-by-side before/after mockup — saved as image file ready for the report'},
-
-{n:'Write 5 copy improvements',h:'Rewrite specific pieces of copy to show the business what better looks like.',
-checks:['Rewrite the homepage H1 headline — must include service + city + clear benefit','Rewrite the GBP business description (750 characters max) — must include city, core services, differentiator, and a call to action','Write a meta title for the homepage (60 chars max): Business Name | Service | City','Write a meta description (155 chars max): compelling one-liner with the main keyword','Rewrite one negative-review response as an example of how they should be responding'],
-eg:{label:'Example',color:'#16a34a',text:'Original GBP description: "We offer quality services to our clients." (42 chars, zero information). Rewritten: "Lahore\'s trusted home cleaning service since 2018. We cover DHA, Gulberg, Johar Town, and Model Town. Daily, weekly, and monthly packages available. 500+ satisfied homes. Call or WhatsApp for a free quote." (208 chars) — includes: city, areas served, service types, social proof number, and a clear CTA. This alone makes them 10x more likely to appear in relevant searches and convert visitors who find them.'},
-tools:['Hemingway App (hemingwayapp.com — free for readability check)'],out:'5 rewritten copy elements — headline, GBP description, meta title, meta description, review response'}
-]},
-
-{c:'#dc2626',n:'Report and cold outreach',d:'Package everything into a professional report and a message the business owner cannot ignore.',
-steps:[
-{n:'Compile the full audit into a structured document',h:'Use Notion, Google Docs, or any doc tool to assemble all findings.',
-checks:['Section 1: Business overview — name, location, industry, audit date','Section 2: Key findings summary — overall score and top 3 critical issues with evidence','Section 3: Phase-by-phase findings — one paragraph max per phase, always include a screenshot','Section 4: Priority action table — 10 actions ranked by Impact (H/M/L) and Effort (H/M/L)','Section 5: Quick wins — 5 things they can do this week, most for free','Section 6: 30-60-90 day roadmap','Appendix: all screenshots used as evidence'],
-eg:{label:'Example',color:'#dc2626',text:'Report structure for a restaurant audit: Cover — "Digital Presence Audit: Lahori Darbar Restaurant, September 2025." Key findings: GBP unclaimed (critical), 3.6 star average on 28 reviews (critical), website loads in 9.2 seconds on mobile (high impact). Priority actions table shows 10 items — top 3 are all achievable free in under 1 hour. Quick wins include claiming the GBP listing, responding to the 4 unanswered negative reviews, and adding the WhatsApp number to the GBP. 30-day roadmap starts with zero-cost fixes and builds to a new review acquisition system by week 4.'},
-tools:['Notion (free)','Google Docs (free)'],out:'Full structured audit document — ready to convert to PDF'},
-
-{n:'Design the report PDF',h:'Turn the document into a professional PDF with the business\'s branding.',
-checks:['Use the Canva "Business Report" template — it is free and professional','Cover page: their business name + "Digital Presence Audit" + date + your name or brand','Use their own brand colors in the report design where possible (from the ColorZilla findings)','Every finding must be accompanied by a screenshot — no text-only claims','Each section clearly marked with a status badge: Critical / Needs Improvement / Good','Final page: your contact details, a clear offer to help, and one clear CTA'],
-eg:{label:'Example',color:'#dc2626',text:'A well-structured 12-page report: Page 1 cover in their brand colors. Page 2: overall scorecard (visual rating for each phase). Pages 3-10: one phase per page with screenshot evidence. Page 11: priority matrix table. Page 12: your contact and offer. Using their own brand colors in the report design signals that you spent real time on this business specifically — not a generic template they will recognize and dismiss. A business owner who receives a 12-page document with screenshots of their own listings is far more likely to respond than one who gets a "I noticed some issues with your website" email.'},
-tools:['Canva (canva.com — free)'],out:'Branded PDF report — saved, named "BusinessName_Audit_Report.pdf"'},
-
-{n:'Write the cold outreach message',h:'Write one short, specific, value-first message to send to the business owner.',
-checks:['Subject line names their specific business — no generic "I found issues with your website"','First line is one specific, real thing you found — not flattery, not vague','Second line: explain you have done a full free analysis and built something for them','Third line: what you have for them — report + website mockup + a new site if applicable','One clear ask: 15 minutes to walk them through it. Nothing more.','Total length: under 150 words — business owners do not read long cold messages'],
-eg:{label:'Example',color:'#dc2626',text:'Subject: Your Google listing for Lahori Darbar is unclaimed — anyone can edit it. "Hi [name], I noticed your Google Business Profile is unclaimed, which means competitors or anyone else can suggest edits to your address and phone number. I spent time doing a full analysis of your online presence and found a few things that are likely costing you customers every week. I also put together a redesigned homepage mockup and a free website version you can use immediately. I have packaged it all into a short report — I would love to walk you through it in 15 minutes at your convenience. Happy to share the report now if you\'d like to take a look first." — This works because it leads with a specific, urgent, real problem they did not know about. The rest follows naturally.'},
-tools:['Email','WhatsApp (for Pakistani businesses)','Instagram DM','LinkedIn'],out:'Final outreach message — ready to send, under 150 words, specific to this business'}
-]}
+const PHASES = [
+  {
+    color: '#2563eb',
+    name: 'Business discovery',
+    desc: 'Identify and document the business entirely from public search results before opening any tool.',
+    steps: [
+      {
+        name: 'Find and confirm the business on Google',
+        hint: 'Search the exact business name to see what Google already knows about them.',
+        checks: [
+          'Type the exact business name into Google — does a knowledge panel appear on the right side?',
+          'Open Google Maps and search the name — is there a pin with reviews and photos?',
+          'Check whether "Permanently closed" appears anywhere on the listing',
+          'Note the top 3 search result URLs — are they the business website, a directory, or something else?'
+        ],
+        example: 'Search "Al-Fatah Superstore Lahore" on Google. A knowledge panel appears showing 4.1 stars, 312 reviews, address on Main Boulevard. On Maps the pin is placed correctly. No "permanently closed" label. Top results: their website alfattah.com, a Facebook page, and a Yelp listing. This confirms the business is active with a solid online footprint.',
+        tools: ['Google Search', 'Google Maps'],
+        output: 'Business confirmed — note the name, city, industry, and all visible URLs in your audit doc'
+      },
+      {
+        name: 'Record every publicly visible data point',
+        hint: 'In one single pass, copy everything Google surfaces before clicking any link.',
+        checks: [
+          'Exact business name as shown on Maps (copy it verbatim)',
+          'Full address including neighborhood or area',
+          'Phone number visible on the knowledge panel',
+          'Website URL listed on the panel',
+          'Category label shown (e.g. "Grocery store", "Hair salon")',
+          'Star rating and total review count',
+          'Hours of operation',
+          'Number of photos visible in the panel photo strip'
+        ],
+        example: 'From the knowledge panel for "Yasmin Boutique Lahore": Name — Yasmin Boutique. Address — 23 MM Alam Road, Gulberg III. Phone — 0300-1234567. Website — none listed. Category — Women\'s clothing store. Rating — 3.8 stars, 47 reviews. Hours — 11am–9pm daily. Photos — 8 photos. Key insight: no website is a critical gap. Only 47 reviews is low for a retail clothing store in that area.',
+        tools: ['Google Maps', 'Google Search'],
+        output: 'Baseline data sheet with all 8 data points recorded — this is the foundation of your entire report'
+      }
+    ]
+  },
+  {
+    color: '#0f9d58',
+    name: 'Google Business Profile',
+    desc: 'Everything here is audited from the public Maps listing — no GBP dashboard access or owner login needed.',
+    steps: [
+      {
+        name: 'Check if the listing is claimed or unclaimed',
+        hint: 'An unclaimed listing has an "Own this business?" link visible at the bottom of the panel.',
+        checks: [
+          'On the Google Maps panel, scroll to the bottom — does "Own this business?" appear?',
+          'If unclaimed: the owner has zero control over the listing — a major vulnerability anyone can exploit',
+          'If claimed: check if it shows a verified checkmark next to the business name',
+          'Search the business name + city — do two separate map pins appear? Duplicate listings cause ranking confusion'
+        ],
+        example: 'Searching "Karachi Bites Restaurant" on Maps shows "Own this business?" at the bottom of the panel. This means the listing is UNCLAIMED. The business cannot respond to reviews, update hours, add photos, or post offers. Worse — a competitor or spammer could claim it. This is a critical finding that costs them nothing to fix and takes 5 minutes to initiate.',
+        tools: ['Google Maps'],
+        output: 'Claim status note — claimed / unclaimed / unverified with screenshot as evidence'
+      },
+      {
+        name: 'NAP consistency check across 5 sources',
+        hint: 'Name, Address, Phone must be identical on every platform. Even small differences hurt local ranking.',
+        checks: [
+          'Copy the NAP (Name, Address, Phone) exactly from Google Maps',
+          'Open Yelp and search the business — does the address format match exactly? (St vs Street, No. vs #)',
+          'Find their Facebook page — does the phone number match character-for-character?',
+          'Check Apple Maps (maps.apple.com) — same address format?',
+          'Visit their website footer if available — same phone and full address?',
+          'Note every difference, even minor punctuation — each inconsistency is a ranking signal lost'
+        ],
+        example: 'Google Maps shows: "Shop 4, Liberty Market, Lahore." Yelp shows: "Liberty Market Lahore." Facebook shows: "4 Liberty Market, Lahore, Punjab." Website footer shows: "Liberty Mkt, Lahore — 0300-111-2222." That is 4 different formats across 4 platforms. Google\'s algorithm expects exact matches as a trust signal. Each inconsistency weakens their local ranking. The fix is to standardize every listing to one exact format.',
+        tools: ['Google Maps', 'Yelp', 'Facebook', 'Apple Maps (maps.apple.com)'],
+        output: 'NAP comparison table showing each platform and every inconsistency found'
+      },
+      {
+        name: 'Categories, attributes, and description',
+        hint: 'Review how the listing describes itself — all visible from the public Maps panel.',
+        checks: [
+          'What is the primary category shown? Is it the most specific option available for their business type?',
+          'Click "See more" on the panel — are additional secondary categories listed?',
+          'Is a business description visible? Does it mention the city and key services?',
+          'Are any attributes shown? (Women-owned, wheelchair accessible, delivery available, etc.)',
+          'Do they have a website linked? A booking button? An order online option?'
+        ],
+        example: 'A dental clinic in Karachi is listed under the generic "Doctor" category instead of "Dentist" or "Dental clinic." This means they appear in far fewer relevant searches. The description reads "We provide dental services." — no city, no specialisations, no reason to choose them. Compare to a competitor showing: "Dentist — General dentistry, teeth whitening, orthodontics. Serving DHA Karachi since 2010." The competitor wins every search impression comparison.',
+        tools: ['Google Maps'],
+        output: 'Category and completeness score out of 5 — with specific improvement list'
+      },
+      {
+        name: 'Photos audit',
+        hint: 'Count and assess every photo visible publicly on their Maps listing. Quality and quantity both matter.',
+        checks: [
+          'Click the photo strip on the panel — how many total photos are there?',
+          'Are any photos uploaded by the owner vs by customers? (check the source label on each photo)',
+          'Do photos show interior, exterior, products/services, team, and menu or work samples?',
+          'Are photos recent or clearly old and low quality (blurry, dark, poor framing)?',
+          'Check the top 2 competitors — how many photos do they have by comparison?'
+        ],
+        example: 'A restaurant in Islamabad has 6 photos total — all taken by customers on their phones, dim and blurry. No professional shots of the interior, menu dishes, or food presentation. Competitor 1 has 94 photos. Competitor 2 has 47 photos. Google data shows businesses with 100+ photos get 5x more direction requests. This business is losing enormous visibility for zero cost. A smartphone and 30 minutes is all it takes.',
+        tools: ['Google Maps'],
+        output: 'Photo count and quality assessment — with competitor comparison numbers'
+      },
+      {
+        name: 'Reviews — volume, rating, recency, and response rate',
+        hint: 'Analyze all publicly visible reviews without any account access needed.',
+        checks: [
+          'Total review count — is this competitive for their industry in their city?',
+          'Average star rating — below 4.0 means customers are actively choosing competitors instead',
+          'Click "Most recent" sort — when was the very last review posted?',
+          'Scroll through 15-20 reviews — are there recurring complaints across multiple reviewers?',
+          'Is the owner responding to reviews? To negative ones specifically? What is the approximate response rate?',
+          'Do any reviews look suspicious? (5 stars, no text, multiple posted same day — signals fake reviews)'
+        ],
+        example: 'A beauty salon in Karachi has 23 reviews averaging 3.6 stars. The last review was 4 months ago. Three separate reviews mention "long wait times." The owner has responded to 2 out of 23 reviews — both were positive, every negative review has been ignored. A 3.6 average means in a Google local pack of 3 results, users will choose either competitor showing 4.4+. The wait-time pattern across multiple reviews suggests an operational issue, not just a marketing one — this belongs in the report.',
+        tools: ['Google Maps'],
+        output: 'Review health summary — rating, volume, recency, response rate, and top recurring themes'
+      }
+    ]
+  },
+  {
+    color: '#e37400',
+    name: 'Website audit',
+    desc: 'Every tool used here is free and public-facing. No login or owner access of any kind required.',
+    steps: [
+      {
+        name: 'First impressions and homepage clarity',
+        hint: 'Open the website as a first-time visitor. Can you understand who they are and what to do in 5 seconds?',
+        checks: [
+          'Does the homepage headline clearly state what they do and where they are located?',
+          'Is there a visible phone number or call-to-action above the scroll line (no scrolling needed)?',
+          'Open the site on your actual phone — does it load and display correctly on mobile?',
+          'Does the copyright year in the footer suggest the site is actively maintained?',
+          'Is there anything broken, outdated, or unprofessional visible on first load?'
+        ],
+        example: 'Opening herbaldoc.pk on mobile shows a desktop-only layout requiring horizontal scrolling. The headline reads "Welcome to Our Website" — zero information about what they offer or where. Phone number is buried on the Contact page (3 clicks away). Footer copyright says 2019. Over 70% of web traffic in Pakistan is mobile. A mobile visitor will bounce in 8 seconds. Fix: update the headline to "Herbal clinic in Lahore — book a consultation today" and add a click-to-call button in the header.',
+        tools: ['Browser (visit site on your actual phone)'],
+        output: 'First impressions verdict with screenshot of the above-the-fold view on mobile'
+      },
+      {
+        name: 'Performance — run PageSpeed Insights',
+        hint: 'Go to pagespeed.web.dev, enter the URL, and run for mobile. Mobile score is what Google uses for ranking.',
+        checks: [
+          'Mobile performance score — below 50 is critical, 50–89 needs work, 90+ is good',
+          'Desktop performance score — for comparison context',
+          'Note the top 3 "Opportunities" listed — these are the specific highest-impact speed fixes',
+          'LCP (Largest Contentful Paint) — over 4 seconds on mobile is a significant SEO ranking issue',
+          'CLS score (Cumulative Layout Shift) — over 0.25 means things are jumping around when the page loads'
+        ],
+        example: 'PageSpeed result for a Karachi law firm: Mobile score 23/100. Desktop score 51/100. Top 3 opportunities: 1) Eliminate render-blocking resources — saves 3.1s. 2) Properly size images — their homepage banner is a 4MB raw photo, saves 2.8s. 3) Serve images in WebP format. LCP is 8.2 seconds on mobile vs Google\'s target of 2.5s. Every extra second of load time reduces conversions by ~7%. This site is losing a large portion of visitors before the page even fully loads.',
+        tools: ['PageSpeed Insights (pagespeed.web.dev — completely free)'],
+        output: 'Screenshot of PageSpeed mobile score + top 3 specific issues listed with their savings estimate'
+      },
+      {
+        name: 'SEO basics — check from the browser',
+        hint: 'The most critical on-page SEO elements can be verified in under 5 minutes without any paid tool.',
+        checks: [
+          'Right-click the homepage → View Page Source → search for <title> — does it include the business name and city?',
+          'In the source, search "description" — is there a meta description? Is it readable and under 160 chars?',
+          'On the live page, is there one clear H1 heading? Does it reflect what the business actually does?',
+          'Type site:domain.com in Google — how many pages are indexed? Under 5 pages is a serious gap',
+          'Right-click an image → Inspect — is the filename descriptive? "lahore-dental-clinic.jpg" vs "DSC00123.jpg" matters'
+        ],
+        example: 'Checking a restaurant website: Title tag reads "Home — Welcome" — no restaurant name, no city. Meta description is completely missing. Google has indexed only 3 pages. The H1 says "Food is Life" — a slogan, not a searchable phrase. Compare to a competitor whose title reads "Best BBQ Restaurant in Gulberg Lahore | Menu & Reservations." That single title tag difference explains the entire traffic gap between these two businesses.',
+        tools: ['Browser View Page Source', 'Google Search (site: command — free)'],
+        output: 'SEO basics checklist — pass/fail on 5 items with specific copy to fix'
+      },
+      {
+        name: 'Technical check — SSL, sitemap, and errors',
+        hint: 'Three quick public checks that reveal major technical problems invisible to the business owner.',
+        checks: [
+          'Does the URL show https:// (secure)? If http:// only — modern browsers flag it as "Not Secure" to every visitor',
+          'Visit domain.com/sitemap.xml — does it load? If 404, Google may not be finding all their pages',
+          'Visit domain.com/robots.txt — does it accidentally block everything with "Disallow: /"?',
+          'Click 3-4 internal links on the homepage — do any lead to a 404 error page?'
+        ],
+        example: 'A home services company in Lahore: Site loads on http:// with no redirect to https — Chrome shows "Not Secure" to every visitor, destroying trust before they read a word. sitemap.xml returns a 404. robots.txt has "Disallow: /" — Google cannot index a single page on the site. These three issues together explain why the site has zero organic traffic after 3 years. All three are fixable by any developer in under an hour.',
+        tools: ['Browser', 'SSL Labs (ssllabs.com/ssltest — free)'],
+        output: 'Technical health checklist — flag each item as Critical / Minor / Passing'
+      },
+      {
+        name: 'Design and trust signals',
+        hint: 'Assess whether the site makes a stranger want to trust and contact this business.',
+        checks: [
+          'Are there real customer testimonials or Google review screenshots anywhere on the site?',
+          'Is there an About section with real photos of the owner or team (not stock photos)?',
+          'Are certifications, awards, years in business, or credentials displayed prominently?',
+          'Is pricing visible or at least a "starting from" range? Hiding prices increases bounce rate',
+          'Install the free Wappalyzer Chrome extension — what platform is the site built on? (WordPress, Wix, Squarespace, etc.) This determines how easy all fixes will be'
+        ],
+        example: 'A private school website: no photos of actual teachers or campus — only generic stock photos of children. No parent testimonials. No mention of board affiliation or curriculum (Cambridge, Matric, IB). No fee structure or admission process explained. A parent has zero trust signals to act on. A competing school shows real classroom photos, a parent quote, O-Level result statistics, and a clear "Book a Tour" button. The second school wins every enquiry before price is even discussed.',
+        tools: ['Browser', 'Wappalyzer (free Chrome extension)'],
+        output: 'Trust signal audit — present / missing / weak rating for each element with screenshots'
+      }
+    ]
+  },
+  {
+    color: '#7c3aed',
+    name: 'LLM visibility (GEO)',
+    desc: 'Test how the business appears when real people ask AI assistants about their service category.',
+    steps: [
+      {
+        name: 'Test on ChatGPT — category and name searches',
+        hint: 'Run two types of searches and screenshot both results before they change.',
+        checks: [
+          'Search: "best [their service] in [their city]" — does this business appear in any recommended list?',
+          'Search: the exact business name — does ChatGPT know anything about this specific business?',
+          'If it appears: is the information accurate? (address, services, website)',
+          'If it appears: is the description positive, neutral, or missing entirely?',
+          'Note which competitor businesses appear in the results that this business does not'
+        ],
+        example: 'Search on ChatGPT: "best physiotherapy clinics in Lahore." Result lists 5 clinics with descriptions. One business we are auditing — Rehab Plus — is not mentioned despite having 4.3 stars on Google and being one of the larger clinics in the area. The 5 clinics that appear all have Wikipedia mentions, have been cited in Dawn or The News articles, or have detailed profiles on Marham.pk. Rehab Plus has none of these. This is the exact citation gap to fix.',
+        tools: ['ChatGPT (free tier — chat.openai.com)'],
+        output: 'Screenshot of ChatGPT result — appearing or not, with competitor names that do appear'
+      },
+      {
+        name: 'Test on Google Gemini',
+        hint: 'Gemini draws from Google\'s own data including the GBP, so results differ meaningfully from ChatGPT.',
+        checks: [
+          'Run the same two searches on Google Gemini',
+          'Does Gemini pull from their Google Maps data and GBP listing?',
+          'Does an "AI Overview" appear at the top of a regular Google Search for their business name?',
+          'Which competitors does Gemini recommend that this business should be competing with?'
+        ],
+        example: 'Gemini search for "wedding photographers in Karachi": returns 4 photographers with brief descriptions. One photographer appears prominently because their GBP is complete (200+ reviews), their website has Schema markup for Photography service, and they are cited on wedding planning blogs. The business we are auditing has 18 reviews and no Schema markup — Gemini ignores them entirely. Lesson: Gemini rewards GBP completeness and structured data more than ChatGPT does.',
+        tools: ['Google Gemini (gemini.google.com — free)', 'Google Search (check AI Overviews)'],
+        output: 'Screenshot of Gemini result — note whether it pulls from GBP data or ignores the business'
+      },
+      {
+        name: 'Test on Perplexity — check what sources it cites',
+        hint: 'Perplexity shows its sources below every answer — this reveals which websites are treated as authorities.',
+        checks: [
+          'Run "best [service] in [city]" on Perplexity',
+          'Look at the numbered sources listed below the answer — which websites are being cited?',
+          'Is the business website among the cited sources?',
+          'Which directories or news sites appear as sources for competitor businesses?',
+          'Note any source that appears for multiple competitors — that is a high-authority site to target'
+        ],
+        example: 'Perplexity result for "best accountants in Islamabad" cites 6 sources: Zameen.com business directory, Pakistan Today business listings, ICAP.org member directory, and 3 individual firm websites. The firm we are auditing is not cited anywhere. Two competitors appear because they are listed on ICAP.org and were featured in an Express Tribune article. Recommendation: get listed on ICAP directory and pitch a local journalist — these two actions directly and measurably improve AI citation frequency.',
+        tools: ['Perplexity (perplexity.ai — free)'],
+        output: 'List of sources Perplexity cited + which ones this business could realistically appear on'
+      }
+    ]
+  },
+  {
+    color: '#0891b2',
+    name: 'Local SEO & citations',
+    desc: 'Map the full public citation footprint by manually checking each major directory.',
+    steps: [
+      {
+        name: 'Directory presence check',
+        hint: 'Check every major directory for this business. No login needed — just search each platform.',
+        checks: [
+          'Yelp: search business name — listed? Is the info accurate? Has the owner responded to reviews?',
+          'Apple Maps (maps.apple.com): does the listing appear with correct address and phone?',
+          'Bing Maps (bing.com/maps): listed and categorized correctly?',
+          'Facebook Business Page: does one exist? Is the About section complete with address and hours?',
+          'Industry-specific: TripAdvisor for hospitality, Marham/Shifa for healthcare, Zameen for real estate, PakWheels for automotive',
+          'Any duplicate Google Maps listings? Search name + city — do two pins appear?'
+        ],
+        example: 'Auditing a restaurant in Karachi: Google Maps — listed, 4.1 stars. Yelp — not found. Apple Maps — listed but shows an old disconnected phone number. Bing Maps — listed correctly. Facebook — page exists but no address entered, just a phone number. Zomato/FoodPanda — not listed (major gap for any food business). The Apple Maps phone number is disconnected — every iPhone user who calls from Maps is hitting a dead end. That is lost bookings every single day from a completely preventable problem.',
+        tools: ['Yelp', 'Apple Maps (maps.apple.com)', 'Bing Maps (bing.com/maps)', 'Facebook', 'Industry directories'],
+        output: 'Directory presence table — found / not found / has errors for each platform checked'
+      },
+      {
+        name: 'Domain authority check',
+        hint: 'Use free public tools to understand how much authority their website has in Google\'s eyes.',
+        checks: [
+          'Go to moz.com/domain-analysis — enter their domain — note the Domain Authority (DA) score',
+          'Go to ahrefs.com/website-authority-checker — enter domain — note the Domain Rating (DR)',
+          'On Moz, look at "Top Pages" — what pages on their site have the most links pointing to them?',
+          'Note the total referring domains count — under 10 means very weak authority signals',
+          'Run one main competitor through the same tool and note their DA/DR for direct comparison'
+        ],
+        example: 'A Lahore IT company: DA 8, DR 6, 4 referring domains. Competitor A: DA 22, DR 19, 31 referring domains. Competitor B: DA 31, DR 27, 68 referring domains. The competitor links come from: a local tech meetup event page, a Dawn Tech article, the PSEB.org.pk member directory, and multiple GitHub profiles. All of these are realistic, reachable targets for the IT company to replicate within 3-6 months.',
+        tools: ['Moz Domain Analysis (moz.com/domain-analysis — free)', 'Ahrefs Authority Checker (free, no login)'],
+        output: 'Authority snapshot — DA, DR, referring domain count + one competitor\'s numbers for comparison'
+      },
+      {
+        name: 'Keyword visibility check',
+        hint: 'See what search terms they currently rank for using free public tools — no access required.',
+        checks: [
+          'Go to ubersuggest.com — enter their domain — view the "Top SEO Keywords" table on the free tier',
+          'What are the top 5 keywords they currently rank for? Are these the right keywords for their business?',
+          'Look for keywords ranked positions 4–15 — these are close to page 1 and fastest to improve',
+          'Google "[their service] + [their city]" — do they appear in the local 3-pack map results?',
+          'Search their exact business name — do they own the first page or does a competitor or directory outrank them for their own brand name?'
+        ],
+        example: 'Ubersuggest shows a Rawalpindi tutoring centre ranking for 18 keywords, all at position 20+. Their top keyword is their own business name. They do not appear in the Google local 3-pack for "tutoring centre Rawalpindi" — that pack shows 3 competitors with more reviews and stronger GBPs. However, they rank position 11 for "O-level tutor Rawalpindi" and position 14 for "A-level classes Rawalpindi." Both are one round of page optimization away from appearing on page 1 — the highest-value quick wins.',
+        tools: ['Ubersuggest (ubersuggest.com — free tier)', 'Google Search (manual SERP check)'],
+        output: 'Top 5 current keywords + 3 near-page-1 opportunities that represent immediate wins'
+      }
+    ]
+  },
+  {
+    color: '#db2777',
+    name: 'Social media audit',
+    desc: 'Everything here is assessed from public-facing profiles only — no account access of any kind.',
+    steps: [
+      {
+        name: 'Find all profiles and rate each for completeness',
+        hint: 'Search the business name on every platform and document exactly what you find.',
+        checks: [
+          'Facebook: business page exists? Profile photo, cover photo, address, phone, website, and hours all filled in?',
+          'Instagram: business account? Bio complete? Website link in bio? Correct category set?',
+          'LinkedIn: company page? Especially important for B2B and professional services businesses',
+          'TikTok: any presence? Increasingly important for restaurants, retail, beauty, and lifestyle businesses',
+          'YouTube: a channel? Even 5 well-made videos can drive significant local discoverability',
+          'Check namecheckr.com — is their username handle consistent across all platforms?'
+        ],
+        example: 'A clothing boutique in Lahore: Facebook page exists with 2,300 followers but no website link, no address, and hours say "Always open" (never been updated). Instagram: @yasminboutiquelhr — 890 followers, bio says only "Boutique" with no location or link in bio. No TikTok. No YouTube. The incomplete Facebook page means customers cannot click to a website, cannot find the address, and cannot check hours — all basic actions that drive foot traffic. Fixing all three fields takes literally 3 minutes.',
+        tools: ['Facebook', 'Instagram', 'LinkedIn', 'TikTok', 'YouTube', 'Namecheckr.com (free)'],
+        output: 'Platform completeness table — score each platform 1–5 with specific missing fields noted'
+      },
+      {
+        name: 'Content quality and posting frequency',
+        hint: 'Scroll through the last 30 days of posts on each active platform and rate what you see.',
+        checks: [
+          'When was the most recent post? If over 30 days, the account reads as abandoned to any visitor',
+          'What types of content are they posting: product photos, videos, reels, stories, text, promotions?',
+          'Estimate the engagement rate: (average likes + comments) ÷ follower count × 100 — above 3% is healthy',
+          'Is any one piece of content clearly outperforming everything else? (10x more likes than usual)',
+          'Does the content feel consistent in quality — same tone, same visual style, same branding across posts?'
+        ],
+        example: 'Last 30 days on Instagram: 3 posts. One product photo (12 likes), one sale announcement (9 likes), one reposted quote (4 likes). 890 followers. Engagement rate: 0.9% — very low. However, 6 months ago they posted a 30-second reel of a customer trying on an outfit which got 340 likes and 22 comments — a 38% engagement rate on that single post, proving their audience responds strongly to video. They have not posted a reel since. They found exactly what works and stopped doing it.',
+        tools: ['Instagram (public posts)', 'Facebook (public posts)', 'TikTok'],
+        output: 'Content snapshot — posting frequency, estimated engagement rate, best performing content format'
+      }
+    ]
+  },
+  {
+    color: '#b45309',
+    name: 'Brand identity',
+    desc: 'Assess visual and messaging consistency entirely from public touchpoints — no internal files needed.',
+    steps: [
+      {
+        name: 'Logo and visual consistency across platforms',
+        hint: 'Compare the logo and brand colors across every platform they appear on.',
+        checks: [
+          'Is the same logo used on website, GBP, Facebook, Instagram, and Google Maps photos?',
+          'Does the logo look professionally designed or like it was made with a free logo generator?',
+          'Install ColorZilla (free Chrome extension) — sample the main brand color on their website',
+          'Check their social profiles — is that same color used consistently in their posts and cover images?',
+          'Install Fontanello (free Chrome extension) — what font is used on the website? Is the same style visible in their social graphics?'
+        ],
+        example: 'An Islamabad bakery: website uses a serif font with a pale pink color scheme. Instagram profile photo is a blurry cake photo — not a logo at all. Facebook uses a different logo in blue and white. GBP shows a photo of the storefront with no logo visible. ColorZilla on the website shows #F2C4CE (pale pink). Instagram posts use white text on dark brown. Each touchpoint looks like a completely different business. A customer who finds them on Instagram then visits the website will question whether it\'s even the same place.',
+        tools: ['Browser', 'ColorZilla (free Chrome extension)', 'Fontanello (free Chrome extension)'],
+        output: 'Brand consistency score — list each platform and the specific inconsistency found with screenshots'
+      },
+      {
+        name: 'Messaging and copy audit',
+        hint: 'Copy their business descriptions from 3 sources and compare them side by side.',
+        checks: [
+          'Copy their GBP description exactly as shown on Google Maps',
+          'Copy their Facebook "About" section text',
+          'Copy their website homepage headline and the first paragraph',
+          'Paste all three side by side — are they saying consistent things? Same tone?',
+          'Does any version mention the city or area they serve?',
+          'Is there a clear reason to choose them over a competitor in any version?'
+        ],
+        example: 'Three descriptions for the same Karachi law firm: GBP — "Law firm providing legal services." Facebook About — "We are a team of experienced lawyers." Website homepage — "Justice, Integrity, Excellence." None mention Karachi. None mention specialisations (family law, corporate, criminal). None give any reason to choose them. Compare to a competitor: "Karachi\'s leading family law firm. 200+ cases resolved. Free first consultation." That one sentence answers who, where, what, and why — theirs answers none of these.',
+        tools: ['Google Maps', 'Facebook', 'Browser'],
+        output: 'Side-by-side messaging comparison + a rewritten business description they could use immediately'
+      }
+    ]
+  },
+  {
+    color: '#059669',
+    name: 'Reputation & reviews',
+    desc: 'Compile a full public reputation picture across every platform where customers leave feedback.',
+    steps: [
+      {
+        name: 'Multi-platform review audit',
+        hint: 'Check every platform where customers for their industry typically leave reviews.',
+        checks: [
+          'Google Maps: stars, total count, recency of most recent review, owner response rate',
+          'Yelp: any reviews? What is the rating? Has the owner responded to them?',
+          'Facebook: are recommendations enabled? Is a star rating visible on the page?',
+          'Industry-specific platforms: TripAdvisor (food/travel), Marham (healthcare), PakWheels (automotive), Zameen (real estate)',
+          'Note which platforms have damaging negative reviews that are going completely unanswered'
+        ],
+        example: 'A hotel in Murree: Google — 4.2 stars, 180 reviews. TripAdvisor — 3.1 stars, 47 reviews. Most guests with bad experiences chose TripAdvisor over Google. The hotel has not responded to a single TripAdvisor review, including 3 reviews titled "Worst experience ever" and "Cold water for 2 days." TripAdvisor is the first result when you search the hotel name — these unanswered negative reviews are the first thing a prospective guest sees. The owner doesn\'t know because nobody is monitoring TripAdvisor.',
+        tools: ['Google Maps', 'Yelp', 'Facebook', 'TripAdvisor', 'Marham / PakWheels / Zameen as applicable'],
+        output: 'Multi-platform rating table — stars and review count per platform with response rate'
+      },
+      {
+        name: 'Sentiment themes and response rate analysis',
+        hint: 'Read 15-20 reviews across all platforms and identify patterns that go beyond the star rating.',
+        checks: [
+          'What do happy customers consistently mention across multiple reviews? (top 3 praise themes)',
+          'What do unhappy customers consistently complain about? (top 3 complaint themes)',
+          'What percentage of reviews have received a response from the owner?',
+          'Are negative reviews getting thoughtful responses or being completely ignored?',
+          'Do any reviews mention a specific staff member by name? (signals team quality issues)'
+        ],
+        example: 'Reading 20 reviews for a DHA Karachi salon: Positive themes: 1) Friendly staff — "Sana" mentioned in 4 reviews. 2) Good hair colour work. 3) Clean environment. Negative themes: 1) Long waits with no updates. 2) Price changed at checkout from what was quoted. 3) Phone often unanswered when booking. Owner response rate: 2 out of 20 reviews answered — both 5-star, all 1-2 star reviews ignored. The booking and pricing complaints are operational problems no amount of marketing will fix — this insight is one of the most valuable things you can put in the report.',
+        tools: ['Google Maps', 'TripAdvisor', 'Yelp'],
+        output: 'Sentiment summary — 3 praise themes, 3 complaint themes, response rate as a percentage'
+      },
+      {
+        name: 'Competitor review comparison',
+        hint: 'Benchmark this business against the top 2 local competitors for the same category.',
+        checks: [
+          'Find the top 2 competitors from Google Maps for the same category and city',
+          'Record review count, average rating, and most recent review date for each',
+          'What are competitors being consistently praised for that this business is not?',
+          'Are competitors responding to reviews while this business is not?',
+          'Calculate the review gap — how many new reviews per month would close the distance in 12 months?'
+        ],
+        example: 'Comparing 3 bakeries in Lahore: Our audit subject — 34 reviews, 3.9 stars, last review 3 weeks ago. Competitor A — 312 reviews, 4.5 stars, review posted yesterday. Competitor B — 156 reviews, 4.3 stars, last review 4 days ago. To close the gap with Competitor A in 12 months requires 23 new reviews per month. At the current estimated rate of 2-3 per month they will fall further behind. A QR code at checkout and a follow-up WhatsApp message could realistically achieve 8-10 per month.',
+        tools: ['Google Maps'],
+        output: 'Competitor review benchmark table + calculated monthly review target to close the gap'
+      }
+    ]
+  },
+  {
+    color: '#6d28d9',
+    name: 'Competitor intelligence',
+    desc: 'Map the competitive landscape entirely from public search results and Maps — no paid tools required.',
+    steps: [
+      {
+        name: 'Identify top 3–5 competitors from Google',
+        hint: 'The businesses appearing in the 3-pack are the exact competitors stealing their leads every single day.',
+        checks: [
+          'Google "[their service] in [their city]" — which businesses appear in the local 3-pack (map results)?',
+          'These 3-pack businesses are the direct competitors stealing walk-in and call traffic every day',
+          'Scroll to organic results — which local competitor websites rank on page 1?',
+          'On Google Maps, look for same-category businesses nearby — note the ones with most reviews',
+          'Which competitors are running Google Ads? (marked "Sponsored" above organic results)'
+        ],
+        example: 'Searching "AC repair service Lahore": Local 3-pack shows: 1) CoolTech Services — 4.6 stars, 203 reviews. 2) Arctic Air — 4.4 stars, 87 reviews. 3) Chill Zone HVAC — 4.1 stars, 44 reviews. The business we are auditing — FrostFix — does not appear despite being in the same area with 22 reviews and 3.8 stars. Getting into the 3-pack requires surpassing Chill Zone (44 reviews, 4.1 stars) as the nearest milestone — that is 22 more reviews and a 0.3-star improvement. Specific and achievable.',
+        tools: ['Google Search', 'Google Maps'],
+        output: 'Competitor list with Maps URLs, review counts, star ratings, and ad spend indicators'
+      },
+      {
+        name: 'Website comparison — what competitors have that this business does not',
+        hint: 'Visit each competitor website and document specific advantages with evidence.',
+        checks: [
+          'Does any competitor have a blog? (search site:competitordomain.com to see indexed pages)',
+          'Do any competitors have significantly more pages indexed than this business?',
+          'How does a competitor\'s PageSpeed mobile score compare? (run one through pagespeed.web.dev)',
+          'What trust signals do competitors show that this business completely lacks?',
+          'Run one main competitor through Moz free DA check — is their authority significantly higher?'
+        ],
+        example: 'Competitor A (CoolTech Services) website: has a blog with 14 articles including "How to choose the right AC size for your home in Lahore" — this article ranks #2 on Google for that search and brings in an estimated 300+ visitors per month. Their PageSpeed mobile score is 71 vs FrostFix\'s 29. They have 22 indexed pages vs FrostFix\'s 4. They show a "Licensed by AEDB" badge and 6 customer video testimonials. Every single advantage is achievable for FrostFix — none require expensive technology.',
+        tools: ['Browser', 'Google Search (site: command)', 'PageSpeed Insights (free)', 'Moz free check'],
+        output: 'Competitor website advantage list — 5 specific things they have that this business does not'
+      },
+      {
+        name: 'Facebook Ad Library — check if competitors are advertising',
+        hint: 'The Facebook Ad Library is completely public and shows every active ad any business is running right now.',
+        checks: [
+          'Go to facebook.com/ads/library — no login needed',
+          'Set country to Pakistan (or relevant country), search each competitor name',
+          'Are they running ads? How many? On Facebook or Instagram or both?',
+          'What offers or messaging are the ads using? (note the hook — discount, urgency, free consultation, testimonial)',
+          'How long have the ads been running? A 30+ day old ad means it is profitable and being scaled'
+        ],
+        example: 'Facebook Ad Library for CoolTech Services: 3 active ads. Ad 1 — "AC Installation starting Rs.8,999 — Book this week" running for 47 days (long run = profitable). Ad 2 — "Free AC checkup before summer — Limited slots" running 12 days. Ad 3 — a customer testimonial video running 31 days. Insight: they advertise on price, urgency, and social proof. FrostFix is competing with zero advertising. This one finding alone makes a compelling case in the outreach report: "Your competitor is running 3 active ads targeting your exact customers right now."',
+        tools: ['Facebook Ad Library (facebook.com/ads/library — completely free, no login)'],
+        output: 'Competitor ad summary — number of active ads, hooks used, estimated duration running'
+      }
+    ]
+  },
+  {
+    color: '#0284c7',
+    name: 'Operations signals',
+    desc: 'Infer the state of their operations and tools from publicly observable signals only.',
+    steps: [
+      {
+        name: 'Booking and contact friction — act as a real customer',
+        hint: 'Go through the actual process of contacting this business. Count every friction point along the way.',
+        checks: [
+          'Starting from Google Maps, how many clicks to reach a phone number or booking option?',
+          'Does their website have a contact form? Count the number of required fields — over 5 fields is excessive',
+          'Is there an online booking tool embedded? Or does "book now" just link to a phone number?',
+          'Click the Message button on their Facebook page — does it auto-respond or does nothing happen?',
+          'Is there a WhatsApp link on the website or GBP? (increasingly expected and preferred in Pakistan)'
+        ],
+        example: 'Testing contact journey for a Lahore tutoring centre: Step 1 — Google Maps, click website. Step 2 — homepage loads, no phone visible anywhere. Step 3 — click "Contact Us" in the menu. Step 4 — form loads requiring name, phone, email, subject, course, level, and message — 7 mandatory fields for an initial inquiry. Step 5 — submit form, white screen appears, no confirmation. Possibly broken. Total: 5 clicks, 7 fields, likely broken. Competitor path: click GBP, click WhatsApp button, chat opens instantly. 2 clicks total. The friction gap is enormous.',
+        tools: ['Browser (your own computer)', 'Your actual phone (test mobile experience separately)'],
+        output: 'Booking friction map — every step a customer must take, total click count, and any broken elements'
+      },
+      {
+        name: 'Tech stack identification',
+        hint: 'Identify what platform and tools the website is built on — this determines how easy all fixes will be.',
+        checks: [
+          'Install Wappalyzer (free Chrome extension) and visit their site — what CMS? WordPress, Wix, Shopify, Squarespace, or custom built?',
+          'Is there a live chat widget in the corner? Note the brand — Tawk.to, Intercom, Tidio, Crisp?',
+          'Is there an email newsletter signup form anywhere on the site or their social profiles?',
+          'Right-click → View Page Source → search "googletagmanager" — are they tracking website visits at all?',
+          'Search "pixel" in page source — do they have Facebook Pixel installed? Without it they cannot run retargeting ads'
+        ],
+        example: 'Wappalyzer on a healthcare clinic website reveals: WordPress with Avada theme from 2016 (severely outdated, known security vulnerabilities). No live chat widget. No email signup. No Google Tag Manager found — they have zero website analytics and literally cannot tell how many people visit. No Facebook Pixel. This means they cannot measure any marketing ROI, cannot retarget visitors with ads, and cannot grow an email list. Google Tag Manager, Analytics, Facebook Pixel, and Tawk.to live chat are all completely free to install.',
+        tools: ['Wappalyzer (free Chrome extension)', 'Browser → View Page Source'],
+        output: 'Tech stack snapshot — platform, analytics, tracking, and chat tools in use or missing'
+      }
+    ]
+  },
+  {
+    color: '#be185d',
+    name: 'Content gap analysis',
+    desc: 'Identify content opportunities using free public research tools — no keyword tool subscriptions needed.',
+    steps: [
+      {
+        name: 'Keyword and question research',
+        hint: 'Find the questions potential customers are searching that this business could be answering.',
+        checks: [
+          'Go to answerthepublic.com — type their main service — what questions and phrases come up?',
+          'In Google, type their service + city and check the "People Also Ask" box — what questions appear?',
+          'Type their service in Google and read the autocomplete dropdown suggestions — these represent high search volume',
+          'Run their domain on ubersuggest.com free tier — what content currently ranks for them?',
+          'Search "[their service] in [city] blog" — are any competitors publishing content and getting traffic?'
+        ],
+        example: 'AnswerThePublic for "eye specialist" generates: "how much does an eye test cost in Pakistan," "which eye doctor is best for children," "can an eye specialist detect diabetes," "what to expect at an eye exam." None of these questions are answered anywhere on the clinic website. A competitor has a blog with 8 articles including one titled "Eye test cost in Lahore 2024" that ranks #3 on Google and brings an estimated 400 visitors per month from people who later become patients. Writing answers to just 5 of these questions would capture search traffic the clinic is completely missing.',
+        tools: ['AnswerThePublic (answerthepublic.com — free tier)', 'Google (autocomplete + People Also Ask)', 'Ubersuggest (free)'],
+        output: 'Top 10 content topics — the specific questions potential customers are asking right now'
+      },
+      {
+        name: 'Video and social content gaps',
+        hint: 'Check YouTube and TikTok to see whether competitors are winning with video in this category.',
+        checks: [
+          'Search "[their service] [their city]" on YouTube — do competitor videos appear in results?',
+          'Search the same on TikTok — local business video content is a massive untapped organic opportunity',
+          'Does the business have any video content at all across YouTube, Reels, or TikTok?',
+          'What types of video content rank for competitors? (tutorials, before/after, testimonials, behind the scenes)'
+        ],
+        example: 'YouTube search for "furniture shop Lahore": one competitor has a channel with 23 videos showing craftsmanship process, showroom walkthroughs, and customer home setups. Their most viewed video — "How our sofas are made" — has 14,000 views and ranks #1 on YouTube for "custom furniture Lahore." The business we are auditing has zero video content anywhere. A single 2-minute showroom tour posted on YouTube, Instagram Reels, and TikTok simultaneously creates organic discoverability across 3 platforms for the cost of a smartphone and 20 minutes.',
+        tools: ['YouTube (free search)', 'TikTok (free search)', 'Instagram (free search)'],
+        output: 'Video gap assessment — are competitors using video successfully + 3 specific video ideas for this business'
+      }
+    ]
+  },
+  {
+    color: '#16a34a',
+    name: 'Website improvement plan',
+    desc: 'Build a concrete, evidence-based improvement plan from all findings above. This is the core deliverable.',
+    steps: [
+      {
+        name: 'Rank the top 5 issues by business impact',
+        hint: 'From all phases, select the 5 highest-impact issues and put them in revenue-impact order.',
+        checks: [
+          'Issue 1 is usually the single thing costing the most leads per day: missing website, no mobile, unclaimed GBP, or dangerously low reviews',
+          'Issues 2–5: rank by revenue impact, not by technical complexity',
+          'For each: describe the before state (what you found) and the after state (what it should be)',
+          'Estimate time to fix: is it 10 minutes free, 1 hour with a developer, or a larger project?',
+          'Separate what the business owner can do themselves for free vs what needs outside help'
+        ],
+        example: 'Priority ranking for a Faisalabad textile showroom: 1) No website — losing every customer who researches before visiting. Est. impact: 30–40% of potential customers. Fix: build a 5-page site. Timeline: 2 weeks. 2) 3.7 Google rating, zero review responses — pushing customers to competitors. Fix: respond to all reviews + get 20 new reviews via WhatsApp requests. 3) GBP unclaimed — cannot add products, photos, or posts. Fix: claim in 5 minutes, completely free. 4) No WhatsApp link — biggest single friction point for Pakistani market. Fix: 10 minutes, free. 5) PageSpeed mobile score 19. Fix: compress images, 30 minutes.',
+        tools: ['Notes from all previous phases'],
+        output: 'Priority fix list — top 5 issues in impact order with before/after description and effort estimate'
+      },
+      {
+        name: 'Create a before/after mockup for the homepage',
+        hint: 'Visually show what one key section would look like after improvements — this is what makes reports compelling.',
+        checks: [
+          'Take a screenshot of the current homepage above-the-fold view on both desktop and mobile',
+          'Identify the single biggest visual or copy problem visible in that view',
+          'Recreate an improved version using Canva or any basic design tool',
+          'Write a new headline that: states what they do + mentions the city + has a clear benefit',
+          'Write new body text under 40 words focused on trust and value',
+          'Design a clear CTA button with specific action text — "Book Free Consultation" not just "Contact Us"'
+        ],
+        example: 'Before — Headline: "Welcome to Premier Dental." No city. No CTA visible. Generic stock photo of a tooth. After — Headline: "Karachi\'s trusted dental clinic — painless treatment in DHA & Clifton." Sub-headline: "1,200+ happy patients. Same-day appointments available." CTA button: "Book your appointment — it\'s free." Real photo of the actual clinic interior. The before could be any dental clinic anywhere in the world. The after is specific, credible, and gives a visitor a concrete reason to act. That is the difference between a website that converts and one that does not.',
+        tools: ['Canva (canva.com — free)', 'Screenshot tool (any)'],
+        output: 'Side-by-side before/after mockup — saved as an image file ready to embed in the report'
+      },
+      {
+        name: 'Write 5 copy improvements',
+        hint: 'Rewrite specific pieces of copy to show the business exactly what better looks like.',
+        checks: [
+          'Rewrite the homepage H1 headline — must include: service + city + clear benefit to the customer',
+          'Rewrite the GBP business description (750 characters max) — must include: city, core services, a differentiator, and a CTA',
+          'Write an improved meta title for the homepage (60 chars max): Business Name | Service | City',
+          'Write an improved meta description (155 chars max): one compelling sentence with the main keyword',
+          'Rewrite one existing negative review response as a model of how they should be handling them'
+        ],
+        example: 'Original GBP description: "We offer quality services to our clients." (42 characters, zero useful information). Rewritten: "Lahore\'s trusted home cleaning service since 2018. We cover DHA, Gulberg, Johar Town, and Model Town. Daily, weekly, and monthly packages. 500+ satisfied homes. Call or WhatsApp for a free quote today." (203 chars) — includes: city, areas served, service types, a social proof number, and a clear CTA. This single change makes them dramatically more likely to appear in relevant searches and convert visitors who do find them.',
+        tools: ['Hemingway App (hemingwayapp.com — free for readability check)'],
+        output: '5 rewritten copy elements — headline, GBP description, meta title, meta description, review response'
+      }
+    ]
+  },
+  {
+    color: '#dc2626',
+    name: 'Report & cold outreach',
+    desc: 'Package everything into a professional report and a message the business owner cannot ignore.',
+    steps: [
+      {
+        name: 'Compile the full audit into a structured document',
+        hint: 'Bring every phase finding into one organized document before designing the PDF.',
+        checks: [
+          'Section 1: Business overview — name, location, industry, audit date, overall health score out of 100',
+          'Section 2: Key findings — top 3 critical issues with screenshots as evidence',
+          'Section 3: Phase-by-phase findings — one focused paragraph per phase maximum',
+          'Section 4: Priority action table — top 10 actions ranked by Impact × Effort',
+          'Section 5: Quick wins — 5 things they can do this week, most for free',
+          'Section 6: 30-60-90 day roadmap with specific tasks per month',
+          'Appendix: all screenshots labelled and referenced in the text'
+        ],
+        example: 'Report structure for a restaurant audit: Cover — "Digital Presence Audit: Lahori Darbar Restaurant, September 2025." Key findings: GBP unclaimed (critical), 3.6 average from 28 reviews (critical), website loads in 9.2 seconds on mobile (high impact). Priority actions top 3 are all achievable free in under 1 hour. Quick wins include claiming the GBP, responding to the 4 unanswered negative reviews, and adding the WhatsApp number to the GBP listing. 30-day roadmap starts with free fixes and builds to a review acquisition system by week 4.',
+        tools: ['Notion (free)', 'Google Docs (free)'],
+        output: 'Complete structured audit document — organized and ready to design as a PDF'
+      },
+      {
+        name: 'Design the report as a professional PDF',
+        hint: 'Turn the document into something that looks like it was made by a professional agency.',
+        checks: [
+          'Use a Canva "Business Report" template — professional results, completely free',
+          'Cover page: their business name + "Digital Presence Audit" + date + your brand name',
+          'Use their own brand colors in the report design where you can (from the ColorZilla findings)',
+          'Every single finding must be paired with a screenshot — no claims without visual evidence',
+          'Each section gets a clear status badge: Critical / Needs Improvement / Good',
+          'Final page: your contact details, a clear offer, and one single CTA'
+        ],
+        example: 'A compelling 12-page report: Page 1 cover in their brand colors. Page 2: visual scorecard (colored rating for each phase). Pages 3–10: one phase per page with screenshot evidence and specific fix instructions. Page 11: priority matrix table. Page 12: your contact and service offer. Using their own brand colors in the report signals that this was built specifically for them — not a generic template they will recognize and dismiss immediately. A business owner who receives a 12-page document featuring screenshots of their own listings and profiles is far more likely to respond than one who receives a generic "I noticed issues with your website" email.',
+        tools: ['Canva (canva.com — free)', 'Google Slides (free)'],
+        output: 'Branded PDF report — saved as "BusinessName_Audit_Date.pdf" ready to attach'
+      },
+      {
+        name: 'Write the cold outreach message',
+        hint: 'One short, specific, value-first message. Under 150 words. Name their problem before pitching anything.',
+        checks: [
+          'Subject line names their specific business — no generic "I found issues with your website"',
+          'First sentence is one specific, real thing you found — not flattery, not vague observations',
+          'Second sentence: you have done a full free analysis and prepared something for them specifically',
+          'Third: what you have for them — report + website mockup, specific and tangible',
+          'One clear ask only: 15 minutes to walk them through it. Nothing more than that',
+          'Total length: under 150 words — busy business owners do not read long cold messages'
+        ],
+        example: 'Subject: Your Google listing for Lahori Darbar is unclaimed — anyone can edit it. Body: "Hi [name], I noticed your Google Business Profile isn\'t claimed, which means anyone can suggest changes to your phone number or address. I spent time doing a full analysis of your online presence and found a few things that are likely costing you customers each week — including a review issue that\'s easy to fix. I\'ve put together a short report and a redesigned homepage mockup. I\'d love to walk you through it in 15 minutes at your convenience — happy to send the report now if you\'d like to see it first." — This works because it leads with a specific, urgent, real problem they didn\'t know about. Everything else follows naturally.',
+        tools: ['Email', 'WhatsApp (for Pakistani businesses)', 'Instagram DM', 'LinkedIn message'],
+        output: 'Final cold outreach message — under 150 words, specific to this business, ready to send'
+      }
+    ]
+  }
 ];
 
-var cur=0,ck={};
-PH.forEach(function(p,pi){p.steps.forEach(function(_,si){ck[pi+'-'+si]=false;});});
+// ─── STATE ───
+let currentPhase = 0;
+const checked = {};
+PHASES.forEach((p, pi) => p.steps.forEach((_, si) => checked[`${pi}-${si}`] = false));
 
-function pDone(pi){return PH[pi].steps.filter(function(_,si){return ck[pi+'-'+si];}).length;}
-function allDone(){return Object.values(ck).filter(Boolean).length;}
-function allTotal(){return Object.keys(ck).length;}
+function totalSteps() { return Object.keys(checked).length; }
+function doneSteps() { return Object.values(checked).filter(Boolean).length; }
+function phaseDone(pi) { return PHASES[pi].steps.filter((_, si) => checked[`${pi}-${si}`]).length; }
 
-function renderNav(){
-  var h='<div class="nav-sec">Phases</div>';
-  PH.forEach(function(p,pi){
-    var pd=pDone(pi),pt=p.steps.length,pct=Math.round(pd/pt*100),isA=pi===cur;
-    h+='<div class="ni'+(isA?' active':'')+'" style="--ncolor:'+p.c+'" onclick="sw('+pi+')">';
-    h+='<div class="ni-dot" style="background:'+(isA?p.c:'rgba(0,0,0,0.06)')+';color:'+(isA?'#fff':p.c)+'">'+(pi+1<10?'0'+(pi+1):pi+1)+'</div>';
-    h+='<div class="ni-lbl">'+p.n+'</div>';
-    h+='<div class="ni-n">'+pd+'/'+pt+'</div>';
-    h+='</div>';
-    h+='<div class="nbar"><div class="nbf" style="width:'+pct+'%;background:'+p.c+'"></div></div>';
+// ─── UPDATE PROGRESS UI ───
+function updateProgress() {
+  const d = doneSteps(), t = totalSteps();
+  document.getElementById('done-count').textContent = d;
+  document.getElementById('total-count').textContent = t;
+  document.getElementById('overall-bar').style.width = (t ? Math.round(d/t*100) : 0) + '%';
+}
+
+// ─── RENDER SIDEBAR ───
+function renderSidebar() {
+  let h = '<div class="sidebar-section-label">Phases</div>';
+  PHASES.forEach((p, pi) => {
+    const pd = phaseDone(pi), pt = p.steps.length, pct = Math.round(pd/pt*100);
+    const isA = pi === currentPhase;
+    h += `<div class="nav-item${isA?' active':''}" style="--ph-color:${p.color}" onclick="switchPhase(${pi})">
+      <div class="nav-num">${String(pi+1).padStart(2,'0')}</div>
+      <div class="nav-info">
+        <div class="nav-label">${p.name}</div>
+        <div class="nav-count">${pd} / ${pt} done</div>
+      </div>
+    </div>
+    <div class="nav-pbar"><div class="nav-pfill" style="width:${pct}%;background:${p.color}"></div></div>`;
   });
-  document.getElementById('nav').innerHTML=h;
+  document.getElementById('sidebar').innerHTML = h;
 }
 
-function renderMain(){
-  var p=PH[cur];
-  var pd=pDone(cur),pt=p.steps.length,pct=Math.round(pd/pt*100);
-  var h='';
-  h+='<div class="ph-badge" style="background:'+p.c+'1a;color:'+p.c+'">Phase '+(cur+1)+' / '+PH.length+'</div>';
-  h+='<div class="ph-title">'+p.n+'</div>';
-  h+='<div class="ph-desc">'+p.d+'</div>';
-  h+='<div class="pbar"><div class="pbf" style="width:'+pct+'%;background:'+p.c+'"></div></div>';
-  p.steps.forEach(function(s,si){
-    var key=cur+'-'+si,done=ck[key];
-    h+='<div class="step" id="st-'+si+'">';
-    h+='<div class="step-head">';
-    h+='<div class="chk'+(done?' on':'')+'" onclick="tck('+si+')">';
-    h+='<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    h+='</div>';
-    h+='<div class="sb"><div class="sn">'+s.n+'</div><div class="sh">'+s.h+'</div></div>';
-    h+='<button class="dbtn" onclick="tdet('+si+')">Details ▾</button>';
-    h+='</div>';
-    h+='<div class="det" id="det-'+si+'">';
-    h+='<div class="dl">What to check</div>';
-    s.checks.forEach(function(c){h+='<div class="di">'+c+'</div>';});
-    h+='<div class="dl">Real-world example</div>';
-    h+='<div class="ex" style="--excolor:'+p.c+'"><div class="ex-label" style="color:'+p.c+'">'+s.eg.label+'</div>'+s.eg.text+'</div>';
-    h+='<div class="dl">Tools</div><div class="tags">';
-    s.tools.forEach(function(t){h+='<span class="tag t-tool">'+t+'</span>';});
-    h+='</div>';
-    h+='<div class="dl">Output / deliverable</div>';
-    h+='<div class="tags"><span class="tag t-out">'+s.out+'</span></div>';
-    h+='</div></div>';
+// ─── RENDER MAIN ───
+function renderMain() {
+  const p = PHASES[currentPhase];
+  const pd = phaseDone(currentPhase), pt = p.steps.length;
+  const pct = pt ? Math.round(pd/pt*100) : 0;
+
+  let h = `
+    <div class="phase-tag" style="background:${p.color}18;color:${p.color}">Phase ${currentPhase+1} of ${PHASES.length}</div>
+    <h1 class="phase-title">${p.name}</h1>
+    <p class="phase-desc">${p.desc}</p>
+    <div class="phase-progress-bar"><div class="phase-progress-fill" style="width:${pct}%;background:${p.color}"></div></div>
+  `;
+
+  p.steps.forEach((s, si) => {
+    const key = `${currentPhase}-${si}`;
+    const done = checked[key];
+    h += `
+      <div class="step-card${done?' done':''}" id="card-${si}">
+        <div class="step-header">
+          <div class="checkbox${done?' checked':''}" onclick="toggleCheck(${si})" id="chk-${si}">
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+              <polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="step-body">
+            <div class="step-name">${s.name}</div>
+            <div class="step-hint">${s.hint}</div>
+          </div>
+          <button class="detail-btn" id="btn-${si}" onclick="toggleDetail(${si})">Details ▾</button>
+        </div>
+        <div class="step-detail" id="det-${si}" style="--ph-color:${p.color}">
+          <div class="detail-section">
+            <div class="detail-label">What to check</div>
+            <ul class="check-list">
+              ${s.checks.map(c => `<li>${c}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Real-world example</div>
+            <div class="example-box" style="border-left-color:${p.color};background:${p.color}0d;border-color:${p.color}30">
+              <div class="example-label" style="color:${p.color}">Example scenario</div>
+              <div class="example-text">${s.example}</div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Tools to use</div>
+            <div class="tags">
+              ${s.tools.map(t => `<span class="tag tag-tool">${t}</span>`).join('')}
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Deliverable / output</div>
+            <div class="output-row">
+              <div class="output-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,2.5" stroke="#15803d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="output-text">${s.output}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   });
-  document.getElementById('main').innerHTML=h;
-  document.getElementById('meta').textContent=allDone()+' / '+allTotal()+' done';
-  var bn=document.getElementById('bnext');
-  bn.textContent=cur<PH.length-1?'Next →':'Done';
-  bn.style.background=p.c;
-  document.getElementById('bprev').style.display=cur>0?'':'none';
+
+  h += `
+    <div class="footer-nav">
+      <button class="btn btn-ghost" onclick="switchPhase(${currentPhase-1})" style="${currentPhase===0?'visibility:hidden':''}">← Previous phase</button>
+      <button class="btn btn-primary" onclick="${currentPhase < PHASES.length-1 ? `switchPhase(${currentPhase+1})` : "alert('Audit complete! All phases done.')' "}">
+        ${currentPhase < PHASES.length-1 ? 'Next phase →' : 'Complete audit ✓'}
+      </button>
+    </div>
+  `;
+
+  const main = document.getElementById('main');
+  main.innerHTML = h;
+  main.scrollTop = 0;
 }
 
-function tck(si){
-  var key=cur+'-'+si;
-  ck[key]=!ck[key];
-  var el=document.getElementById('st-'+si);
-  var chk=el.querySelector('.chk');
-  if(ck[key]){chk.classList.add('on');}else{chk.classList.remove('on');}
-  document.getElementById('meta').textContent=allDone()+' / '+allTotal()+' done';
-  renderNav();
+// ─── ACTIONS ───
+function switchPhase(i) {
+  if (i < 0 || i >= PHASES.length) return;
+  currentPhase = i;
+  renderSidebar();
+  renderMain();
+  window.scrollTo(0, 0);
 }
 
-function tdet(si){
-  var d=document.getElementById('det-'+si);
-  d.style.display=d.style.display==='block'?'none':'block';
+function toggleCheck(si) {
+  const key = `${currentPhase}-${si}`;
+  checked[key] = !checked[key];
+
+  const card = document.getElementById(`card-${si}`);
+  const chk = document.getElementById(`chk-${si}`);
+  if (checked[key]) { card.classList.add('done'); chk.classList.add('checked'); }
+  else { card.classList.remove('done'); chk.classList.remove('checked'); }
+
+  updateProgress();
+  renderSidebar();
 }
 
-function sw(i){cur=i;renderNav();renderMain();document.getElementById('main').scrollTop=0;}
-function go(d){var n=cur+d;if(n>=0&&n<PH.length)sw(n);}
+function toggleDetail(si) {
+  const det = document.getElementById(`det-${si}`);
+  const btn = document.getElementById(`btn-${si}`);
+  const open = det.classList.contains('visible');
+  det.classList.toggle('visible', !open);
+  btn.classList.toggle('open', !open);
+  btn.textContent = open ? 'Details ▾' : 'Close ▴';
+}
 
-renderNav();renderMain();
+// ─── INIT ───
+renderSidebar();
+renderMain();
+updateProgress();
 </script>
+</body>
+</html>
