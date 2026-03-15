@@ -135,7 +135,7 @@
   .layout {
     display: grid;
     grid-template-columns: 240px 1fr;
-    align-items: start;
+    min-height: calc(100vh - 101px);
   }
 
   /* ─── SIDEBAR ─── */
@@ -145,7 +145,7 @@
     overflow-y: auto;
     position: sticky;
     top: 101px;
-    max-height: calc(100vh - 101px);
+    height: calc(100vh - 101px);
     padding: 16px 0 32px;
   }
   .sidebar::-webkit-scrollbar { width: 3px; }
@@ -195,6 +195,18 @@
 
   /* ─── MAIN CONTENT ─── */
   .main { padding: 32px 40px 60px; max-width: 880px; width: 100%; }
+
+  .phase-header-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .phase-step-count {
+    font-size: 12px; font-weight: 600;
+    color: var(--text-tertiary);
+    background: #fff; border: 1px solid var(--border-light);
+    border-radius: 20px; padding: 3px 12px;
+  }
+  .phase-step-count span { color: var(--text-primary); }
 
   .phase-tag {
     display: inline-flex; align-items: center; gap: 6px;
