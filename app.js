@@ -765,12 +765,12 @@ function renderMain() {
   });
 
   const isLast = currentPhase === PHASES.length - 1;
+  const nextAction = isLast ? 'openModal()' : 'switchPhase(' + (currentPhase + 1) + ')';
+  const nextLabel = isLast ? 'View Full Findings →' : 'Next phase →';
   h += `
     <div class="footer-nav">
       <button class="btn btn-ghost" onclick="switchPhase(${currentPhase-1})" style="${currentPhase===0?'visibility:hidden':''}">← Previous phase</button>
-      <button class="btn btn-primary" onclick="${isLast ? "openModal()" : `switchPhase(${currentPhase+1})`}">
-        ${isLast ? 'View Full Findings →' : 'Next phase →'}
-      </button>
+      <button class="btn btn-primary" onclick="${nextAction}">${nextLabel}</button>
     </div>
   `;
 
