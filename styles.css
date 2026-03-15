@@ -323,7 +323,6 @@
     font-size: 11px; font-weight: 600; color: var(--text-secondary);
     display: flex; align-items: center; gap: 5px;
   }
-  .finding-field-label .req { color: var(--ph-color, #2563eb); font-size: 10px; }
 
   .finding-textarea {
     width: 100%;
@@ -340,21 +339,23 @@
   .finding-textarea:focus { outline: none; border-color: var(--ph-color, #2563eb); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ph-color, #2563eb) 10%, transparent); }
   .finding-textarea::placeholder { color: #adb5bd; }
 
+  /* ─── RATING BUTTONS ─── */
+  /* BUG FIX: Selected state is now handled entirely via inline styles in JS.
+     This base rule only sets the non-selected defaults. */
   .finding-rating { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .rating-btn {
     font-size: 11px; font-weight: 600;
     padding: 4px 12px; border-radius: 20px;
     border: 1.5px solid var(--border);
     background: #fff; cursor: pointer;
-    transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    font-family: 'DM Sans', sans-serif;
     color: var(--text-secondary);
   }
-  .rating-btn:hover { border-color: currentColor; }
-  .rating-btn[data-val="critical"] { --rc: #dc2626; }
-  .rating-btn[data-val="needs-work"] { --rc: #f59e0b; }
-  .rating-btn[data-val="good"] { --rc: #16a34a; }
-  .rating-btn[data-val="na"] { --rc: #8b949e; }
-  .rating-btn.selected { background: var(--rc); border-color: var(--rc); color: #fff; }
+  /* Selected state: all visual properties set via inline styles in JS for reliability */
+  .rating-btn.selected {
+    font-weight: 700;
+  }
 
   .char-count { font-size: 11px; color: var(--text-tertiary); text-align: right; }
 
@@ -511,17 +512,6 @@
   }
   .btn-copy:hover { background: var(--main-bg); }
   .btn-copy.success { background: #dcfce7; border-color: #86efac; color: #15803d; }
-
-  .firebase-note {
-    background: #fff7ed; border: 1px solid #fed7aa;
-    border-radius: var(--radius-sm); padding: 12px 14px; margin-top: 14px;
-  }
-  .firebase-note-title { font-size: 12px; font-weight: 700; color: #9a3412; margin-bottom: 4px; }
-  .firebase-note p { font-size: 12px; color: #7c2d12; line-height: 1.6; }
-  .firebase-note code {
-    background: #fed7aa; padding: 1px 4px; border-radius: 3px;
-    font-size: 11px; font-family: 'Courier New', monospace;
-  }
 
   /* ─── RESPONSIVE ─── */
   @media (max-width: 768px) {
