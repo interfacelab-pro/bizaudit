@@ -827,15 +827,16 @@ function renderFindingsFields(s, pi, si, color) {
       h += `</div>`;
     } else {
       const rows = field.rows || 3;
+      const placeholder = (field.placeholder || '').replace(/"/g, '&quot;');
       const val = (savedFields[field.key] || '').replace(/"/g, '&quot;');
       h += `<textarea 
         class="finding-textarea"
         id="field-${pi}-${si}-${field.key}"
-        placeholder="${field.placeholder || ''}"
+        placeholder="${placeholder}"
         rows="${rows}"
         oninput="onFieldInput(${pi},${si},'${field.key}',this)"
         style="min-height:${rows * 24 + 18}px"
-      >${savedFields[field.key] || ''}</textarea>`;
+      >${val}</textarea>`;
     }
     h += `</div>`;
   });
