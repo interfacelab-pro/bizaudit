@@ -24,8 +24,6 @@
     background: var(--main-bg);
     color: var(--text-primary);
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
 
   /* ─── TOP BAR ─── */
@@ -99,7 +97,6 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-shrink: 0;
   }
   .client-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; white-space: nowrap; }
   .client-input {
@@ -135,7 +132,7 @@
   .layout {
     display: grid;
     grid-template-columns: 240px 1fr;
-    flex: 1; min-height: 0;
+    align-items: start;
   }
 
   /* ─── SIDEBAR ─── */
@@ -164,7 +161,7 @@
     border-left: 3px solid transparent;
   }
   .nav-item:hover { background: rgba(255,255,255,0.04); }
-  .nav-item.active { background: var(--sidebar-active-bg); border-left-color: var(--ph-color); }
+  .nav-item.active { background: var(--sidebar-active-bg); border-left-color: rgba(255,255,255,0.5); }
   .nav-num {
     width: 22px; height: 22px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
