@@ -648,6 +648,14 @@ function countAllFindings() {
   return count;
 }
 
+function escapeHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 // ─────────────────────────────────────────────
 // PROGRESS UI
 // ─────────────────────────────────────────────
@@ -714,11 +722,11 @@ function renderMain() {
             </svg>
           </div>
           <div class="step-body">
-            <div class="step-name">${s.name}</div>
-            <div class="step-hint">${s.hint}</div>
+            <div class="step-name">${escapeHtml(s.name)}</div>
+            <div class="step-hint">${escapeHtml(s.hint)}</div>
             <div class="step-note-preview${hasNotes?' visible':''}" id="preview-${si}">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v7a1 1 0 01-1 1H3a1 1 0 01-1-1V2z" stroke="#16a34a" stroke-width="1.3"/><path d="M4 5h4M4 7h2" stroke="#16a34a" stroke-width="1.3" stroke-linecap="round"/></svg>
-              <span style="color:#16a34a;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">${firstNote ? firstNote.substring(0,80) + (firstNote.length > 80 ? '…' : '') : 'Findings recorded'}</span>
+              <span style="color:#16a34a;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">${firstNote ? escapeHtml(firstNote.substring(0,80)) + (firstNote.length > 80 ? '…' : '') : 'Findings recorded'}</span>
             </div>
           </div>
           <button class="detail-btn" id="btn-${si}" onclick="toggleDetail(${si})">Details ▾</button>
@@ -726,24 +734,24 @@ function renderMain() {
         <div class="step-detail" id="det-${si}" style="--ph-color:${p.color}">
           <div class="detail-section">
             <div class="detail-label">What to check</div>
-            <ul class="check-list">${s.checks.map(c=>`<li>${c}</li>`).join('')}</ul>
+            <ul class="check-list">${s.checks.map(c=>`<li>${escapeHtml(c)}</li>`).join('')}</ul>
           </div>
           <div class="detail-section">
             <div class="detail-label">Real-world example</div>
             <div class="example-box" style="border-left:3px solid ${p.color};background:${p.color}0d;border:1px solid ${p.color}30;border-left:3px solid ${p.color}">
               <div class="example-label" style="color:${p.color}">Example scenario</div>
-              <div class="example-text" style="color:#1c2128">${s.example}</div>
+              <div class="example-text" style="color:#1c2128">${escapeHtml(s.example)}</div>
             </div>
           </div>
           <div class="detail-section">
             <div class="detail-label">Tools to use</div>
-            <div class="tags">${s.tools.map(t=>`<span class="tag tag-tool">${t}</span>`).join('')}</div>
+            <div class="tags">${s.tools.map(t=>`<span class="tag tag-tool">${escapeHtml(t)}</span>`).join('')}</div>
           </div>
           <div class="detail-section">
             <div class="detail-label">Deliverable / output</div>
             <div class="output-row">
               <div class="output-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,2.5" stroke="#15803d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="output-text">${s.output}</div>
+              <div class="output-text">${escapeHtml(s.output)}</div>
             </div>
           </div>
 
@@ -814,7 +822,7 @@ function renderFindingsFields(s, pi, si, color) {
   let h = '';
   s.fields.forEach(field => {
     h += `<div class="finding-field">
-      <div class="finding-field-label">${field.label}</div>`;
+      <div class="finding-field-label">${escapeHtml(field.label)}</div>`;
 
     if (field.type === 'rating') {
       h += `<div class="finding-rating">`;
