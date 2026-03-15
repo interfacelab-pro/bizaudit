@@ -97,6 +97,9 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    position: sticky;
+    top: 56px;
+    z-index: 99;
   }
   .client-label { font-size: 12px; color: var(--text-tertiary); font-weight: 500; white-space: nowrap; }
   .client-input {
@@ -141,8 +144,8 @@
     border-right: 1px solid var(--sidebar-border);
     overflow-y: auto;
     position: sticky;
-    top: 56px;
-    height: calc(100vh - 56px);
+    top: 101px;
+    max-height: calc(100vh - 101px);
     padding: 16px 0 32px;
   }
   .sidebar::-webkit-scrollbar { width: 3px; }
