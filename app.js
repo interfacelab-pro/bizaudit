@@ -689,10 +689,13 @@ function renderMain() {
   const pct = pt ? Math.round(pd/pt*100) : 0;
 
   let h = `
-    <div class="phase-tag" style="background:${p.color}18;color:${p.color}">Phase ${currentPhase+1} of ${PHASES.length}</div>
+    <div class="phase-header-row">
+      <div class="phase-tag" style="background:${p.color}18;color:${p.color}">Phase ${currentPhase+1} of ${PHASES.length}</div>
+      <div class="phase-step-count" id="phase-step-count"><span id="phase-done-num">${pd}</span> / ${pt} steps done</div>
+    </div>
     <h1 class="phase-title">${p.name}</h1>
     <p class="phase-desc">${p.desc}</p>
-    <div class="phase-progress-bar"><div class="phase-progress-fill" style="width:${pct}%;background:${p.color}"></div></div>
+    <div class="phase-progress-bar"><div class="phase-progress-fill" id="phase-progress-fill" style="width:${pct}%;background:${p.color}"></div></div>
   `;
 
   p.steps.forEach((s, si) => {
@@ -942,6 +945,14 @@ function toggleCheck(si) {
   saveToStorage(currentPhase, si);
   updateProgress();
   renderSidebar();
+
+  // Live-update phase step count in header
+  const pd = phaseDone(currentPhase);
+  const pt = PHASES[currentPhase].steps.length;
+  const doneNum = document.getElementById('phase-done-num');
+  const fill = document.getElementById('phase-progress-fill');
+  if (doneNum) doneNum.textContent = pd;
+  if (fill) fill.style.width = (pt ? Math.round(pd/pt*100) : 0) + '%';
 }
 
 function toggleDetail(si) {
