@@ -828,11 +828,14 @@ function renderFindingsFields(s, pi, si, color) {
       h += `<div class="finding-rating">`;
       field.options.forEach((opt, idx) => {
         const colors = { 'critical': '#dc2626', 'needs-work': '#f59e0b', 'good': '#16a34a', 'na': '#8b949e' };
-        const selected = savedFields[field.key] === opt ? 'selected' : '';
-        h += `<button class="rating-btn ${selected}" data-val="${opt}" data-step="${pi}-${si}" data-field="${field.key}" 
-          style="${selected ? `--rc:${colors[opt]}` : `color:${colors[opt]};border-color:${colors[opt]}40`}"
+        const isSelected = savedFields[field.key] === opt;
+        const inlineStyle = isSelected
+          ? `--rc:${colors[opt]};color:#fff`
+          : `color:${colors[opt]};border-color:${colors[opt]}40`;
+        h += `<button class="rating-btn${isSelected ? ' selected' : ''}" data-val="${opt}" data-step="${pi}-${si}" data-field="${field.key}" 
+          style="${inlineStyle}"
           onclick="setRating(${pi},${si},'${field.key}','${opt}',this)">
-          ${field.labels[idx]}
+          ${escapeHtml(field.labels[idx])}
         </button>`;
       });
       h += `</div>`;
@@ -877,15 +880,23 @@ function onFieldInput(pi, si, fieldKey, el) {
 function setRating(pi, si, fieldKey, val, btn) {
   const key = `${pi}-${si}`;
   if (!findings[key]) findings[key] = { fields: {}, savedAt: null };
+  const colors = { 'critical': '#dc2626', 'needs-work': '#f59e0b', 'good': '#16a34a', 'na': '#8b949e' };
 
   // Deselect if same
   if (findings[key].fields[fieldKey] === val) {
     findings[key].fields[fieldKey] = '';
-    document.querySelectorAll(`[data-step="${pi}-${si}"][data-field="${fieldKey}"]`).forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll(`[data-step="${pi}-${si}"][data-field="${fieldKey}"]`).forEach(b => {
+      b.classList.remove('selected');
+      b.style.cssText = `color:${colors[b.dataset.val]};border-color:${colors[b.dataset.val]}40`;
+    });
   } else {
     findings[key].fields[fieldKey] = val;
     document.querySelectorAll(`[data-step="${pi}-${si}"][data-field="${fieldKey}"]`).forEach(b => {
-      b.classList.toggle('selected', b.dataset.val === val);
+      const isSelected = b.dataset.val === val;
+      b.classList.toggle('selected', isSelected);
+      b.style.cssText = isSelected
+        ? `--rc:${colors[b.dataset.val]};color:#fff`
+        : `color:${colors[b.dataset.val]};border-color:${colors[b.dataset.val]}40`;
     });
   }
 
