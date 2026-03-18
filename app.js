@@ -1,10 +1,35 @@
 // ─────────────────────────────────────────────
-// DATA  (Phases 12 & 13 removed — LLM generates those outputs)
+// FIREBASE IMPORTS
+// ─────────────────────────────────────────────
+import { initializeApp }                                   from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut,
+         onAuthStateChanged }                             from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, setDoc,
+         getDocs, updateDoc, onSnapshot,
+         serverTimestamp, orderBy, query }                from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// ─────────────────────────────────────────────
+// FIREBASE INIT
+// ─────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyBzvsvj2kud5MZVE0erVsshFbXoN3I-NJE",
+  authDomain:        "biz-audit-ai.firebaseapp.com",
+  projectId:         "biz-audit-ai",
+  storageBucket:     "biz-audit-ai.firebasestorage.app",
+  messagingSenderId: "169138128801",
+  appId:             "1:169138128801:web:70cfc91f8f641373c32de0"
+};
+
+const fbApp  = initializeApp(firebaseConfig);
+const auth   = getAuth(fbApp);
+const db     = getFirestore(fbApp);
+
+// ─────────────────────────────────────────────
+// PHASES DATA
 // ─────────────────────────────────────────────
 const PHASES = [
   {
-    color: '#2563eb',
-    name: 'Business discovery',
+    color: '#2563eb', name: 'Business discovery',
     desc: 'Identify and document the business entirely from public search results before opening any tool.',
     steps: [
       {
@@ -16,7 +41,7 @@ const PHASES = [
         output: 'Business status and search footprint recorded',
         fields: [
           { key: 'status', label: 'Business Status', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Not Found / Closed','Unclear','Active & Confirmed','N/A'] },
-          { key: 'notes', label: 'Observations', type: 'textarea', placeholder: 'Describe the Knowledge Panel, Maps presence, and top search URLs…', rows: 3 }
+          { key: 'notes',  label: 'Observations', type: 'textarea', placeholder: 'Describe the Knowledge Panel, Maps presence, and top search URLs…', rows: 3 }
         ]
       },
       {
@@ -34,14 +59,13 @@ const PHASES = [
           { key: 'category',      label: 'Category & Star Rating', type: 'textarea', placeholder: 'e.g. Women\'s clothing store — 3.8★, 47 reviews', rows: 1 },
           { key: 'hours',         label: 'Hours of Operation', type: 'textarea', placeholder: 'e.g. 11am–9pm daily', rows: 1 },
           { key: 'photo_count',   label: 'Photo count in panel', type: 'textarea', placeholder: 'e.g. 8 photos', rows: 1 },
-          { key: 'notes',         label: 'Anything else visible', type: 'textarea', placeholder: 'Posts, Q&A, booking button, special features…', rows: 2 }
+          { key: 'notes',         label: 'Anything else visible', type: 'textarea', placeholder: 'Posts, Q&A, booking button…', rows: 2 }
         ]
       }
     ]
   },
   {
-    color: '#0f9d58',
-    name: 'Google Business Profile',
+    color: '#0f9d58', name: 'Google Business Profile',
     desc: 'Everything here is audited from the public Maps listing — no GBP dashboard or owner login needed.',
     steps: [
       {
@@ -61,7 +85,7 @@ const PHASES = [
         name: 'NAP consistency across 5 sources',
         hint: 'Name, Address, Phone must be identical on every platform. Even small differences hurt local ranking.',
         checks: ['Copy the NAP exactly from Google Maps','Check Yelp — does address format match exactly?','Check Facebook — does phone match character-for-character?','Check Apple Maps (maps.apple.com)','Visit their website footer'],
-        example: 'Google: "Shop 4, Liberty Market, Lahore." Yelp: "Liberty Market Lahore." Facebook: "4 Liberty Market, Lahore, Punjab." Website: "Liberty Mkt, Lahore — 0300-111-2222." — 4 different formats.',
+        example: 'Google: "Shop 4, Liberty Market, Lahore." Yelp: "Liberty Market Lahore." Facebook: "4 Liberty Market, Lahore, Punjab." — 3 different formats.',
         tools: ['Google Maps', 'Yelp', 'Facebook', 'Apple Maps', 'Website'],
         output: 'NAP from each platform recorded verbatim',
         fields: [
@@ -76,22 +100,22 @@ const PHASES = [
       {
         name: 'Categories, attributes, and GBP description',
         hint: 'Review how the listing describes itself — all visible from the public Maps panel.',
-        checks: ['What is the primary category shown?','Click "See more" — are secondary categories listed?','Is a business description visible? Copy it verbatim.','Are any attributes shown? (Women-owned, wheelchair accessible, delivery)'],
-        example: 'A dental clinic is listed under "Doctor" instead of "Dentist." Description: "We provide dental services." — no city, no specialisations.',
+        checks: ['What is the primary category shown?','Click "See more" — secondary categories?','Is a business description visible? Copy it verbatim.','Any attributes shown? (Women-owned, wheelchair accessible, delivery)'],
+        example: 'A dental clinic listed under "Doctor" instead of "Dentist." Description: "We provide dental services." — no city, no specialisations.',
         tools: ['Google Maps'],
         output: 'Category, description, and attributes captured verbatim',
         fields: [
-          { key: 'status',         label: 'GBP Completeness', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Poor','Needs Work','Good','N/A'] },
-          { key: 'category',       label: 'Primary category shown', type: 'textarea', placeholder: 'e.g. "Doctor"', rows: 1 },
-          { key: 'secondary_cats', label: 'Secondary categories (if any)', type: 'textarea', placeholder: 'List all shown, or "none"', rows: 1 },
+          { key: 'status',          label: 'GBP Completeness', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Poor','Needs Work','Good','N/A'] },
+          { key: 'category',        label: 'Primary category shown', type: 'textarea', placeholder: 'e.g. "Doctor"', rows: 1 },
+          { key: 'secondary_cats',  label: 'Secondary categories (if any)', type: 'textarea', placeholder: 'List all shown, or "none"', rows: 1 },
           { key: 'gbp_description', label: 'GBP description (copy verbatim)', type: 'textarea', placeholder: 'Exact text from Maps, or "none"', rows: 3 },
-          { key: 'attributes',     label: 'Attributes visible', type: 'textarea', placeholder: 'e.g. Women-owned, Delivery — or "none shown"', rows: 1 }
+          { key: 'attributes',      label: 'Attributes visible', type: 'textarea', placeholder: 'e.g. Women-owned, Delivery — or "none shown"', rows: 1 }
         ]
       },
       {
         name: 'Photos audit',
         hint: 'Count and assess every photo visible publicly on their Maps listing.',
-        checks: ['Click the photo strip — how many total?','Owner-uploaded vs customer photos?','What do photos show: interior, exterior, products, team?','Are photos recent or clearly old?','Check top 2 competitors — photo counts?'],
+        checks: ['Click the photo strip — how many total?','Owner-uploaded vs customer photos?','What do photos show: interior, exterior, products, team?','Check top 2 competitors — photo counts?'],
         example: 'A restaurant: 6 photos, all customer-taken, dim and blurry. Competitor 1: 94 photos. Competitor 2: 47 photos.',
         tools: ['Google Maps'],
         output: 'Photo count, quality notes, competitor comparison',
@@ -111,25 +135,24 @@ const PHASES = [
         tools: ['Google Maps'],
         output: 'Review stats and observation notes',
         fields: [
-          { key: 'status',         label: 'Review Health', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Critical (<3.9)','Needs Work','Good (4.0+)','N/A'] },
-          { key: 'rating',         label: 'Star rating', type: 'textarea', placeholder: 'e.g. 3.6', rows: 1 },
-          { key: 'review_count',   label: 'Total review count', type: 'textarea', placeholder: 'e.g. 23', rows: 1 },
-          { key: 'last_review',    label: 'Most recent review date', type: 'textarea', placeholder: 'e.g. 4 months ago', rows: 1 },
-          { key: 'response_rate',  label: 'Owner responses out of total', type: 'textarea', placeholder: 'e.g. 2 of 23 (both 5-star, negatives ignored)', rows: 1 },
-          { key: 'review_themes',  label: 'Recurring themes in reviews', type: 'textarea', placeholder: 'Positive: … | Negative: …', rows: 2 }
+          { key: 'status',        label: 'Review Health', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Critical (<3.9)','Needs Work','Good (4.0+)','N/A'] },
+          { key: 'rating',        label: 'Star rating', type: 'textarea', placeholder: 'e.g. 3.6', rows: 1 },
+          { key: 'review_count',  label: 'Total review count', type: 'textarea', placeholder: 'e.g. 23', rows: 1 },
+          { key: 'last_review',   label: 'Most recent review date', type: 'textarea', placeholder: 'e.g. 4 months ago', rows: 1 },
+          { key: 'response_rate', label: 'Owner responses out of total', type: 'textarea', placeholder: 'e.g. 2 of 23 (both 5-star, negatives ignored)', rows: 1 },
+          { key: 'review_themes', label: 'Recurring themes in reviews', type: 'textarea', placeholder: 'Positive: … | Negative: …', rows: 2 }
         ]
       }
     ]
   },
   {
-    color: '#e37400',
-    name: 'Website audit',
+    color: '#e37400', name: 'Website audit',
     desc: 'Every tool used here is free and public-facing. No login or owner access required.',
     steps: [
       {
         name: 'First impressions and homepage clarity',
         hint: 'Open the website as a first-time visitor. Can you understand who they are in 5 seconds?',
-        checks: ['Does the headline state what they do and where?','Is there a visible phone number or CTA above the fold?','Open on mobile — does it display correctly?','Does the copyright year suggest active maintenance?'],
+        checks: ['Does the headline state what they do and where?','Visible phone number or CTA above the fold?','Open on mobile — does it display correctly?','Does the copyright year suggest active maintenance?'],
         example: 'herbaldoc.pk on mobile shows a desktop-only layout. Headline reads "Welcome to Our Website." Phone buried 3 clicks away. Footer says 2019.',
         tools: ['Browser (mobile)'],
         output: 'Homepage data captured verbatim',
@@ -145,7 +168,7 @@ const PHASES = [
       {
         name: 'Performance — run PageSpeed Insights',
         hint: 'Go to pagespeed.web.dev, enter the URL, and run for mobile.',
-        checks: ['Mobile score: below 50 = critical, 50–89 = needs work, 90+ = good','Desktop score','Top 3 "Opportunities" listed','LCP — over 4s on mobile is a ranking issue','CLS — over 0.25 means layout jumping'],
+        checks: ['Mobile score: below 50 = critical, 50–89 = needs work, 90+ = good','Desktop score','Top 3 "Opportunities" listed','LCP — over 4s on mobile is a ranking issue'],
         example: 'Karachi law firm: Mobile 23/100. Desktop 51/100. Top opportunity: eliminate render-blocking resources — saves 3.1s. LCP: 8.2s.',
         tools: ['PageSpeed Insights (pagespeed.web.dev)'],
         output: 'PageSpeed scores and issues recorded',
@@ -154,14 +177,13 @@ const PHASES = [
           { key: 'mobile_score',  label: 'Mobile score', type: 'textarea', placeholder: 'e.g. 23', rows: 1 },
           { key: 'desktop_score', label: 'Desktop score', type: 'textarea', placeholder: 'e.g. 51', rows: 1 },
           { key: 'lcp',           label: 'LCP', type: 'textarea', placeholder: 'e.g. 8.2s', rows: 1 },
-          { key: 'cls',           label: 'CLS', type: 'textarea', placeholder: 'e.g. 0.31', rows: 1 },
           { key: 'top_issues',    label: 'Top opportunities from PageSpeed', type: 'textarea', placeholder: '1. Eliminate render-blocking — saves 3.1s\n2. …\n3. …', rows: 3 }
         ]
       },
       {
         name: 'SEO basics — check from the browser',
         hint: 'The most critical on-page SEO elements can be verified in under 5 minutes.',
-        checks: ['Right-click → View Source → check <title> — includes business name and city?','Find meta description — present and under 160 chars?','Clear H1 heading?','site:domain.com — how many pages indexed?','Image filenames — descriptive or "DSC00123.jpg"?'],
+        checks: ['Right-click → View Source → check <title> — includes business name and city?','Find meta description — present and under 160 chars?','Clear H1 heading?','site:domain.com — how many pages indexed?'],
         example: 'Restaurant: Title = "Home — Welcome." Meta description missing. 3 pages indexed. H1 = "Food is Life."',
         tools: ['Browser View Source', 'Google Search (site: command)'],
         output: 'Current SEO tags recorded verbatim',
@@ -206,15 +228,14 @@ const PHASES = [
     ]
   },
   {
-    color: '#7c3aed',
-    name: 'LLM visibility (GEO)',
+    color: '#7c3aed', name: 'LLM visibility (GEO)',
     desc: 'Test how the business appears when real people ask AI assistants about their service category.',
     steps: [
       {
         name: 'Test on ChatGPT',
         hint: 'Run two types of searches and record the results before they change.',
         checks: ['Search "best [service] in [city]" — does this business appear?','Search the exact business name — does ChatGPT know anything?','Note which competitors appear instead'],
-        example: '"Best physiotherapy clinics in Lahore" lists 5 clinics. Rehab Plus — not mentioned despite 4.3★ on Google. The 5 that appear all have Wikipedia mentions or Marham.pk profiles.',
+        example: '"Best physiotherapy clinics in Lahore" lists 5 clinics. Rehab Plus — not mentioned despite 4.3★ on Google.',
         tools: ['ChatGPT (chat.openai.com)'],
         output: 'ChatGPT result data recorded',
         fields: [
@@ -223,14 +244,14 @@ const PHASES = [
           { key: 'result_1',        label: 'Query 1 result', type: 'textarea', placeholder: 'Did this business appear? What was said?', rows: 2 },
           { key: 'query_2',         label: 'Query 2 (business name)', type: 'textarea', placeholder: 'e.g. "Rehab Plus Lahore"', rows: 1 },
           { key: 'result_2',        label: 'Query 2 result', type: 'textarea', placeholder: 'Did ChatGPT know anything about them?', rows: 2 },
-          { key: 'competitors_llm', label: 'Competitors ChatGPT listed instead', type: 'textarea', placeholder: 'List all competitors that appeared', rows: 2 }
+          { key: 'competitors_llm', label: 'Competitors listed instead', type: 'textarea', placeholder: 'List all competitors that appeared', rows: 2 }
         ]
       },
       {
         name: 'Test on Google Gemini',
         hint: 'Gemini draws from Google\'s own GBP data — results differ meaningfully from ChatGPT.',
         checks: ['Run the same queries on Gemini','Does Gemini pull from GBP data?','Does an AI Overview appear in regular Google Search for their business name?'],
-        example: '"Wedding photographers in Karachi": 4 listed. One appears because GBP has 200+ reviews, Schema markup, wedding blog citations. Business with 18 reviews and no Schema is ignored.',
+        example: '"Wedding photographers in Karachi": 4 listed. One appears because GBP has 200+ reviews and Schema markup. Business with 18 reviews ignored.',
         tools: ['Google Gemini (gemini.google.com)', 'Google Search (AI Overviews)'],
         output: 'Gemini result data recorded',
         fields: [
@@ -244,28 +265,27 @@ const PHASES = [
         name: 'Test on Perplexity — check sources cited',
         hint: 'Perplexity shows its sources — this reveals which websites are treated as authorities.',
         checks: ['Run "best [service] in [city]" on Perplexity','Look at the numbered sources below the answer','Is the business website cited?','Which directories appear for competitors?'],
-        example: '"Best accountants in Islamabad": cites Zameen.com, Pakistan Today, ICAP.org, 3 firm websites. Audited firm not cited. Two competitors appear via ICAP.org and an Express Tribune feature.',
+        example: '"Best accountants in Islamabad": cites Zameen.com, Pakistan Today, ICAP.org. Audited firm not cited.',
         tools: ['Perplexity (perplexity.ai)'],
         output: 'Perplexity sources and visibility recorded',
         fields: [
-          { key: 'status',           label: 'Perplexity Visibility', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Not Found','Mentioned','Listed','N/A'] },
-          { key: 'business_cited',   label: 'Is this business cited?', type: 'textarea', placeholder: 'Yes / No', rows: 1 },
-          { key: 'sources_cited',    label: 'All sources Perplexity cited', type: 'textarea', placeholder: '1. ICAP.org  2. Pakistan Today  3. Zameen.com…', rows: 3 },
-          { key: 'competitors_cited', label: 'Competitors cited and from which source', type: 'textarea', placeholder: 'Competitor A via ICAP.org, Competitor B via Express Tribune…', rows: 2 }
+          { key: 'status',            label: 'Perplexity Visibility', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Not Found','Mentioned','Listed','N/A'] },
+          { key: 'business_cited',    label: 'Is this business cited?', type: 'textarea', placeholder: 'Yes / No', rows: 1 },
+          { key: 'sources_cited',     label: 'All sources Perplexity cited', type: 'textarea', placeholder: '1. ICAP.org  2. Pakistan Today  3. Zameen.com…', rows: 3 },
+          { key: 'competitors_cited', label: 'Competitors cited and from which source', type: 'textarea', placeholder: 'Competitor A via ICAP.org…', rows: 2 }
         ]
       }
     ]
   },
   {
-    color: '#0891b2',
-    name: 'Local SEO & citations',
+    color: '#0891b2', name: 'Local SEO & citations',
     desc: 'Map the full public citation footprint by manually checking each major directory.',
     steps: [
       {
         name: 'Directory presence check',
         hint: 'Check every major directory for this business. No login needed.',
-        checks: ['Yelp: listed? Accurate? Owner responded?','Apple Maps: correct address and phone?','Bing Maps: listed correctly?','Facebook Business Page: complete?','Industry-specific: TripAdvisor, Marham, Zameen, PakWheels','Duplicate Google Maps listings?'],
-        example: 'Karachi restaurant: Google — 4.1★. Yelp — not found. Apple Maps — old disconnected phone. Bing — correct. Facebook — no address. Zomato — not listed.',
+        checks: ['Yelp: listed? Accurate? Owner responded?','Apple Maps: correct address and phone?','Bing Maps: listed correctly?','Facebook Business Page: complete?','Industry-specific: TripAdvisor, Marham, Zameen, PakWheels'],
+        example: 'Karachi restaurant: Google — 4.1★. Yelp — not found. Apple Maps — old disconnected phone. Bing — correct. Facebook — no address.',
         tools: ['Yelp', 'Apple Maps', 'Bing Maps', 'Facebook', 'Industry directories'],
         output: 'Directory status per platform',
         fields: [
@@ -274,7 +294,7 @@ const PHASES = [
           { key: 'apple_maps',    label: 'Apple Maps', type: 'textarea', placeholder: 'Found / Not found / Found with errors: …', rows: 1 },
           { key: 'bing',          label: 'Bing Maps', type: 'textarea', placeholder: 'Found / Not found / Found with errors: …', rows: 1 },
           { key: 'facebook_biz',  label: 'Facebook Business Page', type: 'textarea', placeholder: 'Found / Not found / Found with errors: …', rows: 1 },
-          { key: 'industry_dirs', label: 'Industry-specific directories', type: 'textarea', placeholder: 'TripAdvisor: … | Marham: … | Zameen: … | PakWheels: …', rows: 2 }
+          { key: 'industry_dirs', label: 'Industry-specific directories', type: 'textarea', placeholder: 'TripAdvisor: … | Marham: … | Zameen: …', rows: 2 }
         ]
       },
       {
@@ -295,35 +315,34 @@ const PHASES = [
       {
         name: 'Keyword visibility check',
         hint: 'See what search terms they currently rank for using free public tools.',
-        checks: ['Ubersuggest.com — enter domain — view top keywords','Top 5 keywords and positions?','Keywords at positions 4–15 — closest to page 1','Google "[service] + [city]" — appear in local 3-pack?','Search exact business name — own the first page?'],
+        checks: ['Ubersuggest.com — enter domain — view top keywords','Top 5 keywords and positions?','Keywords at positions 4–15 — closest to page 1','Appear in local 3-pack?'],
         example: 'A tutoring centre ranks for 18 keywords, all at position 20+. They rank position 11 for "O-level tutor Rawalpindi" — one optimization round from page 1.',
         tools: ['Ubersuggest (free tier)', 'Google Search (manual)'],
         output: 'Top keywords and positions recorded',
         fields: [
-          { key: 'status',        label: 'Keyword Visibility', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Invisible','Low','Visible','N/A'] },
-          { key: 'top_keywords',  label: 'Top keywords they rank for', type: 'textarea', placeholder: '1. "business name" (pos 3)\n2. "service city" (pos 11)\n3. …', rows: 3 },
-          { key: 'threepak',      label: 'Appear in local 3-pack?', type: 'textarea', placeholder: 'Yes / No — what keyword did you check?', rows: 1 },
-          { key: 'branded_serp',  label: 'Own first page for business name?', type: 'textarea', placeholder: 'Yes — what appears / No — what competes?', rows: 1 }
+          { key: 'status',       label: 'Keyword Visibility', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Invisible','Low','Visible','N/A'] },
+          { key: 'top_keywords', label: 'Top keywords they rank for', type: 'textarea', placeholder: '1. "business name" (pos 3)\n2. "service city" (pos 11)…', rows: 3 },
+          { key: 'threepak',     label: 'Appear in local 3-pack?', type: 'textarea', placeholder: 'Yes / No — what keyword did you check?', rows: 1 },
+          { key: 'branded_serp', label: 'Own first page for business name?', type: 'textarea', placeholder: 'Yes — what appears / No — what competes?', rows: 1 }
         ]
       }
     ]
   },
   {
-    color: '#db2777',
-    name: 'Social media audit',
+    color: '#db2777', name: 'Social media audit',
     desc: 'Assessed from public-facing profiles only — no account access required.',
     steps: [
       {
         name: 'Find all profiles and record data',
         hint: 'Search the business name on every platform and document what you find.',
-        checks: ['Facebook: page exists? All fields complete?','Instagram: business account? Bio, website, category?','LinkedIn: company page?','TikTok: any presence?','YouTube: any channel?'],
+        checks: ['Facebook: page exists? All fields complete?','Instagram: business account? Bio, website?','LinkedIn: company page?','TikTok: any presence?','YouTube: any channel?'],
         example: 'A Lahore boutique: Facebook — 2,300 followers, no website link, no address. Instagram — 890 followers, bio says only "Boutique" with no location or link.',
         tools: ['Facebook', 'Instagram', 'LinkedIn', 'TikTok', 'YouTube'],
         output: 'Platform-by-platform profile data recorded',
         fields: [
           { key: 'status',    label: 'Social Presence', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Very Weak','Partial','Strong','N/A'] },
-          { key: 'facebook',  label: 'Facebook', type: 'textarea', placeholder: 'Exists / Not found | Followers: X | Website: Yes/No | Address: Yes/No | Hours: correct/wrong/missing', rows: 2 },
-          { key: 'instagram', label: 'Instagram', type: 'textarea', placeholder: 'Exists / Not found | Followers: X | Bio: (copy it) | Website in bio: Yes/No', rows: 2 },
+          { key: 'facebook',  label: 'Facebook', type: 'textarea', placeholder: 'Exists / Not found | Followers: X | Website: Yes/No | Address: Yes/No', rows: 2 },
+          { key: 'instagram', label: 'Instagram', type: 'textarea', placeholder: 'Exists / Not found | Followers: X | Bio: (copy it) | Website: Yes/No', rows: 2 },
           { key: 'linkedin',  label: 'LinkedIn', type: 'textarea', placeholder: 'Exists / Not found | Followers: X', rows: 1 },
           { key: 'tiktok',    label: 'TikTok', type: 'textarea', placeholder: 'Exists / Not found | Followers: X', rows: 1 },
           { key: 'youtube',   label: 'YouTube', type: 'textarea', placeholder: 'Exists / Not found | Subscribers: X | Videos: X', rows: 1 }
@@ -333,7 +352,7 @@ const PHASES = [
         name: 'Content quality and posting frequency',
         hint: 'Scroll through the last 30 days of posts on each active platform.',
         checks: ['Most recent post date?','Content types: photos, videos, reels, stories, text?','Engagement rate: (likes + comments) ÷ followers × 100','Any content clearly outperforming the rest?'],
-        example: 'Last 30 days: 3 Instagram posts. 0.9% engagement rate. 6 months ago a reel got 340 likes — 38% engagement. They found what works and stopped doing it.',
+        example: 'Last 30 days: 3 Instagram posts. 0.9% engagement. 6 months ago a reel got 340 likes — 38% engagement.',
         tools: ['Instagram', 'Facebook', 'TikTok'],
         output: 'Posting frequency, engagement data, best content type',
         fields: [
@@ -348,15 +367,14 @@ const PHASES = [
     ]
   },
   {
-    color: '#b45309',
-    name: 'Brand identity',
+    color: '#b45309', name: 'Brand identity',
     desc: 'Assess visual and messaging consistency from public touchpoints — no internal files needed.',
     steps: [
       {
         name: 'Logo and visual consistency across platforms',
         hint: 'Compare the logo and brand colors across every platform.',
-        checks: ['Same logo on website, GBP, Facebook, Instagram, Maps?','Does the logo look professionally designed?','Use ColorZilla — sample the main brand color','Is that color used consistently in posts?','Use Fontanello — what font is on the website?'],
-        example: 'Islamabad bakery: website uses pale pink serif. Instagram profile photo is a blurry cake. Facebook uses a different logo in blue and white. GBP shows storefront with no logo.',
+        checks: ['Same logo on website, GBP, Facebook, Instagram, Maps?','Use ColorZilla — sample the main brand color','Use Fontanello — what font is on the website?'],
+        example: 'Islamabad bakery: website uses pale pink serif. Instagram profile photo is a blurry cake. Facebook uses a different logo in blue and white.',
         tools: ['Browser', 'ColorZilla (Chrome extension)', 'Fontanello (Chrome extension)'],
         output: 'Brand visual data per platform',
         fields: [
@@ -370,7 +388,7 @@ const PHASES = [
       },
       {
         name: 'Messaging consistency across platforms',
-        hint: 'Copy their business descriptions from 3 sources and record them verbatim — no analysis needed.',
+        hint: 'Copy their business descriptions from 3 sources and record them verbatim.',
         checks: ['Copy GBP description from Google Maps','Copy Facebook "About" section text','Copy website homepage headline + first paragraph','Note: does any version mention the city?'],
         example: 'GBP: "Law firm providing legal services." Facebook: "We are experienced lawyers." Website: "Justice, Integrity, Excellence." None mention Karachi.',
         tools: ['Google Maps', 'Facebook', 'Browser'],
@@ -386,15 +404,14 @@ const PHASES = [
     ]
   },
   {
-    color: '#059669',
-    name: 'Reputation & reviews',
+    color: '#059669', name: 'Reputation & reviews',
     desc: 'Compile a full public reputation picture across every platform where customers leave feedback.',
     steps: [
       {
         name: 'Multi-platform review audit',
         hint: 'Check every platform where customers typically leave reviews.',
-        checks: ['Google Maps: stars, count, recency, response rate','Yelp: any reviews? Owner responded?','Facebook: recommendations enabled?','TripAdvisor, Marham, PakWheels, Zameen as applicable','Note platforms with damaging unanswered negatives'],
-        example: 'A Murree hotel: Google — 4.2★, 180 reviews. TripAdvisor — 3.1★, 47 reviews. Zero TripAdvisor responses including 3 titled "Worst experience ever." TripAdvisor is the first result when you search the hotel.',
+        checks: ['Google Maps: stars, count, recency, response rate','Yelp: any reviews? Owner responded?','Facebook: recommendations enabled?','TripAdvisor, Marham, PakWheels, Zameen as applicable'],
+        example: 'A Murree hotel: Google — 4.2★, 180 reviews. TripAdvisor — 3.1★, 47 reviews. Zero TripAdvisor responses. TripAdvisor is the first result when you search the hotel.',
         tools: ['Google Maps', 'Yelp', 'Facebook', 'TripAdvisor'],
         output: 'Stars and review counts per platform',
         fields: [
@@ -403,20 +420,20 @@ const PHASES = [
           { key: 'yelp_rep',        label: 'Yelp', type: 'textarea', placeholder: '★ rating | count | response rate — or "not found"', rows: 1 },
           { key: 'facebook_rep',    label: 'Facebook', type: 'textarea', placeholder: '★ rating | recommendations — or "not found"', rows: 1 },
           { key: 'tripadvisor_rep', label: 'TripAdvisor', type: 'textarea', placeholder: '★ rating | count | response rate — or "N/A"', rows: 1 },
-          { key: 'other_rep',       label: 'Other platforms (Marham, PakWheels, Zameen…)', type: 'textarea', placeholder: 'Platform: ★ | count | notes', rows: 2 }
+          { key: 'other_rep',       label: 'Other platforms', type: 'textarea', placeholder: 'Platform: ★ | count | notes', rows: 2 }
         ]
       },
       {
         name: 'Sentiment themes from reviews',
         hint: 'Read 15-20 reviews across all platforms and record what customers actually say.',
         checks: ['Top 3 praise themes','Top 3 complaint themes','Percentage of reviews with owner responses?','Are negative reviews getting responses?'],
-        example: 'DHA Karachi salon: Positive — friendly staff, good colour work, clean. Negative — long waits, price changed at checkout. Response rate: 2 of 20 — both 5-star, all negative ignored.',
+        example: 'DHA Karachi salon: Positive — friendly staff, good colour work, clean. Negative — long waits, price changed at checkout. Response rate: 2 of 20.',
         tools: ['Google Maps', 'TripAdvisor', 'Yelp'],
         output: 'Sentiment themes and response rate data',
         fields: [
           { key: 'status',                  label: 'Sentiment Score', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Mostly Negative','Mixed','Mostly Positive','N/A'] },
           { key: 'praise',                  label: 'Top praise themes', type: 'textarea', placeholder: '1. Friendly staff (6×)\n2. Good colour work\n3. Clean environment', rows: 2 },
-          { key: 'complaints',              label: 'Top complaint themes', type: 'textarea', placeholder: '1. Long waits (4 reviews)\n2. Price changed at checkout\n3. Phone unanswered', rows: 2 },
+          { key: 'complaints',              label: 'Top complaint themes', type: 'textarea', placeholder: '1. Long waits (4 reviews)\n2. Price changed at checkout', rows: 2 },
           { key: 'owner_responds_negative', label: 'Owner responds to negative reviews?', type: 'textarea', placeholder: 'Yes / No / Sometimes', rows: 1 }
         ]
       },
@@ -430,29 +447,28 @@ const PHASES = [
         fields: [
           { key: 'status',       label: 'Competitive Position', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Far Behind','Behind','Competitive','N/A'] },
           { key: 'this_biz_rep', label: 'This business', type: 'textarea', placeholder: 'e.g. 34 reviews, 3.9★, last review 2 months ago', rows: 1 },
-          { key: 'comp_a_rep',   label: 'Competitor A (name + numbers)', type: 'textarea', placeholder: 'Name: … | reviews: … | rating: … | responds: Yes/No', rows: 1 },
-          { key: 'comp_b_rep',   label: 'Competitor B (name + numbers)', type: 'textarea', placeholder: 'Name: … | reviews: … | rating: … | responds: Yes/No', rows: 1 },
-          { key: 'comp_praised', label: 'What competitors are praised for that this business is not', type: 'textarea', placeholder: 'Competitor A: praised for speed. Competitor B: praised for quality photos…', rows: 2 }
+          { key: 'comp_a_rep',   label: 'Competitor A (name + numbers)', type: 'textarea', placeholder: 'Name: … | reviews: … | rating: …', rows: 1 },
+          { key: 'comp_b_rep',   label: 'Competitor B (name + numbers)', type: 'textarea', placeholder: 'Name: … | reviews: … | rating: …', rows: 1 },
+          { key: 'comp_praised', label: 'What competitors are praised for that this business is not', type: 'textarea', placeholder: 'Competitor A: praised for speed…', rows: 2 }
         ]
       }
     ]
   },
   {
-    color: '#6d28d9',
-    name: 'Competitor intelligence',
+    color: '#6d28d9', name: 'Competitor intelligence',
     desc: 'Map the competitive landscape from public search results and Maps — no paid tools required.',
     steps: [
       {
         name: 'Identify top 3–5 competitors from Google',
         hint: 'The businesses in the 3-pack are stealing leads every day.',
-        checks: ['Google "[service] in [city]" — who appears in the local 3-pack?','Scroll organic results — which competitor websites rank page 1?','Which competitors run Google Ads?'],
-        example: '"AC repair Lahore" 3-pack: CoolTech 4.6★ 203 reviews, Arctic Air 4.4★ 87 reviews. Audited business FrostFix — not in 3-pack despite being in the area.',
+        checks: ['Google "[service] in [city]" — who appears in the local 3-pack?','Scroll organic results — competitor websites on page 1?','Which competitors run Google Ads?'],
+        example: '"AC repair Lahore" 3-pack: CoolTech 4.6★ 203 reviews, Arctic Air 4.4★ 87 reviews. Audited business FrostFix — not in 3-pack.',
         tools: ['Google Search', 'Google Maps'],
         output: 'Competitor list with names, ratings, reviews, URLs',
         fields: [
           { key: 'status',       label: 'Competitive Gap', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Invisible','Not in 3-pack','In 3-pack','N/A'] },
           { key: 'search_query', label: 'Search query used', type: 'textarea', placeholder: 'e.g. "AC repair service Lahore"', rows: 1 },
-          { key: 'threepak_biz', label: '3-pack businesses (name, stars, reviews, website)', type: 'textarea', placeholder: '1. CoolTech Services — 4.6★ — 203 reviews — cooltech.pk\n2. …\n3. …', rows: 3 },
+          { key: 'threepak_biz', label: '3-pack businesses (name, stars, reviews, website)', type: 'textarea', placeholder: '1. CoolTech Services — 4.6★ — 203 reviews — cooltech.pk\n2. …', rows: 3 },
           { key: 'organic_biz',  label: 'Organic page 1 competitor websites', type: 'textarea', placeholder: 'URLs ranking organically', rows: 2 },
           { key: 'running_ads',  label: 'Competitors running Google Ads', type: 'textarea', placeholder: 'Name: … / "none visible"', rows: 1 }
         ]
@@ -460,13 +476,13 @@ const PHASES = [
       {
         name: 'Competitor website observations',
         hint: 'Visit each competitor website and note what you observe.',
-        checks: ['Does any competitor have a blog? (site:domain.com)','Significantly more indexed pages?','Competitor PageSpeed score?','Trust signals competitors show?','Competitor DA (Moz)?'],
-        example: 'CoolTech Services: blog with 14 articles, one ranking #2 for "how to choose AC size Lahore." PageSpeed mobile 71. 22 indexed pages.',
+        checks: ['Does any competitor have a blog?','More indexed pages?','Competitor PageSpeed score?','Trust signals competitors show?','Competitor DA (Moz)?'],
+        example: 'CoolTech Services: blog with 14 articles. PageSpeed mobile 71. 22 indexed pages.',
         tools: ['Browser', 'Google Search (site: command)', 'PageSpeed Insights', 'Moz free'],
         output: 'Competitor website observations recorded',
         fields: [
           { key: 'status',         label: 'Website Gap', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Far Behind','Behind','Competitive','N/A'] },
-          { key: 'comp_blog',      label: 'Competitors with blogs / content', type: 'textarea', placeholder: 'Competitor A: 14 articles, ranks for "how to choose AC size Lahore"', rows: 2 },
+          { key: 'comp_blog',      label: 'Competitors with blogs / content', type: 'textarea', placeholder: 'Competitor A: 14 articles…', rows: 2 },
           { key: 'comp_indexed',   label: 'Competitor indexed pages vs this business', type: 'textarea', placeholder: 'Comp A: 22 pages | This business: 4 pages', rows: 1 },
           { key: 'comp_pagespeed', label: 'Competitor PageSpeed (one check)', type: 'textarea', placeholder: 'Competitor A mobile: 71', rows: 1 },
           { key: 'comp_da',        label: 'Competitor DA (Moz)', type: 'textarea', placeholder: 'Competitor A: DA 22', rows: 1 },
@@ -476,8 +492,8 @@ const PHASES = [
       {
         name: 'Facebook Ad Library — competitor ads',
         hint: 'The Facebook Ad Library is public and shows every active ad any business runs right now.',
-        checks: ['Go to facebook.com/ads/library — no login needed','Set country to Pakistan, search each competitor','How many ads? On Facebook or Instagram?','Offers and messaging used?','Running 30+ days = profitable'],
-        example: 'CoolTech Services: 3 active ads. "AC Installation Rs.8,999 — Book this week" running 47 days. "Free AC checkup before summer" running 12 days.',
+        checks: ['Go to facebook.com/ads/library — no login needed','Set country to Pakistan, search each competitor','How many ads? Offers and messaging used?','Running 30+ days = profitable'],
+        example: 'CoolTech Services: 3 active ads. "AC Installation Rs.8,999 — Book this week" running 47 days.',
         tools: ['Facebook Ad Library (facebook.com/ads/library)'],
         output: 'Competitor ad activity recorded',
         fields: [
@@ -490,21 +506,20 @@ const PHASES = [
     ]
   },
   {
-    color: '#0284c7',
-    name: 'Operations signals',
+    color: '#0284c7', name: 'Operations signals',
     desc: 'Infer the state of their operations and tools from publicly observable signals only.',
     steps: [
       {
         name: 'Booking and contact friction',
         hint: 'Go through the actual process of contacting this business. Count every step.',
-        checks: ['Starting from Google Maps, how many clicks to reach phone/booking?','Contact form — how many required fields?','Online booking tool?','Facebook auto-respond?','WhatsApp link on website or GBP?'],
+        checks: ['Starting from Google Maps, how many clicks to reach phone/booking?','Contact form — how many required fields?','Online booking tool?','WhatsApp link on website or GBP?'],
         example: 'Lahore tutoring centre: 5 clicks, 7 mandatory fields, form broken. Competitor: click GBP → WhatsApp → chat opens. 2 clicks.',
         tools: ['Browser', 'Mobile phone'],
         output: 'Step-by-step contact journey recorded',
         fields: [
           { key: 'status',        label: 'Contact Friction', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['High Friction','Moderate','Easy','N/A'] },
-          { key: 'contact_steps', label: 'Steps to contact from Maps', type: 'textarea', placeholder: 'Step 1: Maps → Step 2: website → Step 3: contact page → Step 4: form (7 fields) → broken confirmation', rows: 3 },
-          { key: 'whatsapp',      label: 'WhatsApp link present?', type: 'textarea', placeholder: 'On website: Yes/No | On GBP: Yes/No | Number: …', rows: 1 },
+          { key: 'contact_steps', label: 'Steps to contact from Maps', type: 'textarea', placeholder: 'Step 1: Maps → Step 2: website → …', rows: 3 },
+          { key: 'whatsapp',      label: 'WhatsApp link present?', type: 'textarea', placeholder: 'On website: Yes/No | On GBP: Yes/No', rows: 1 },
           { key: 'booking_tool',  label: 'Online booking tool?', type: 'textarea', placeholder: 'Yes (tool name) / No / "Book now" goes to phone only', rows: 1 },
           { key: 'fb_autoreply',  label: 'Facebook auto-reply?', type: 'textarea', placeholder: 'Yes / No / Not tested', rows: 1 }
         ]
@@ -512,7 +527,7 @@ const PHASES = [
       {
         name: 'Tech stack identification',
         hint: 'Identify what platform and tools the website is built on.',
-        checks: ['Wappalyzer — what CMS?','Live chat widget?','Email newsletter signup?','View Page Source → search "googletagmanager"','Search "pixel" — Facebook Pixel installed?'],
+        checks: ['Wappalyzer — what CMS?','Live chat widget?','Email newsletter signup?','View Page Source → search "googletagmanager"','Facebook Pixel installed?'],
         example: 'Healthcare clinic: WordPress / Avada 2016. No live chat. No email signup. No Google Tag Manager. No Facebook Pixel.',
         tools: ['Wappalyzer (Chrome extension)', 'Browser View Source'],
         output: 'Tech stack snapshot recorded',
@@ -528,8 +543,7 @@ const PHASES = [
     ]
   },
   {
-    color: '#be185d',
-    name: 'Content gap analysis',
+    color: '#be185d', name: 'Content gap analysis',
     desc: 'Identify content opportunities using free public research tools.',
     steps: [
       {
@@ -541,23 +555,23 @@ const PHASES = [
         output: 'Content questions and competitor ranking data recorded',
         fields: [
           { key: 'status',           label: 'Content Opportunity', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['Zero Content','Minimal','Active','N/A'] },
-          { key: 'paa_questions',    label: '"People Also Ask" questions found', type: 'textarea', placeholder: '1. "How much does [service] cost in [city]?"\n2. "Best [service] for children"\n3. …', rows: 4 },
+          { key: 'paa_questions',    label: '"People Also Ask" questions found', type: 'textarea', placeholder: '1. "How much does [service] cost in [city]?"\n2. …', rows: 4 },
           { key: 'autocomplete',     label: 'Google autocomplete phrases found', type: 'textarea', placeholder: '"[service] near me", "[service] price Pakistan"…', rows: 2 },
-          { key: 'comp_content',     label: 'Competitors ranking for these questions', type: 'textarea', placeholder: 'Competitor A ranks #3 for "eye test cost Lahore" (~400 visits/mo)', rows: 2 },
+          { key: 'comp_content',     label: 'Competitors ranking for these questions', type: 'textarea', placeholder: 'Competitor A ranks #3 for "eye test cost Lahore"', rows: 2 },
           { key: 'this_biz_content', label: 'Does this business have content answering these?', type: 'textarea', placeholder: 'Yes — describe / No — none', rows: 1 }
         ]
       },
       {
         name: 'Video presence on YouTube and TikTok',
         hint: 'Check whether competitors are winning with video in this category.',
-        checks: ['Search "[service] [city]" on YouTube — competitor videos?','Same search on TikTok?','Does this business have any video?','What types of video rank for competitors?'],
-        example: 'YouTube "furniture shop Lahore": one competitor has 23 videos. Most viewed — "How our sofas are made" — 14,000 views, ranks #1. Business has zero video.',
+        checks: ['Search "[service] [city]" on YouTube — competitor videos?','Same search on TikTok?','Does this business have any video?'],
+        example: 'YouTube "furniture shop Lahore": competitor has 23 videos. Most viewed — "How our sofas are made" — 14,000 views, ranks #1. Business has zero video.',
         tools: ['YouTube', 'TikTok', 'Instagram'],
         output: 'Video presence data recorded',
         fields: [
           { key: 'status',          label: 'Video Presence', type: 'rating', options: ['critical','needs-work','good','na'], labels: ['No Video','Minimal','Active','N/A'] },
-          { key: 'this_biz_video',  label: 'This business video presence', type: 'textarea', placeholder: 'YouTube: X | TikTok: X | Instagram Reels: X — or "none"', rows: 1 },
-          { key: 'youtube_results', label: 'YouTube results for their category', type: 'textarea', placeholder: 'Competitor A: 23 videos — top video "How our sofas are made" 14k views', rows: 2 },
+          { key: 'this_biz_video',  label: 'This business video presence', type: 'textarea', placeholder: 'YouTube: X | TikTok: X | Reels: X — or "none"', rows: 1 },
+          { key: 'youtube_results', label: 'YouTube results for their category', type: 'textarea', placeholder: 'Competitor A: 23 videos — top video 14k views', rows: 2 },
           { key: 'tiktok_results',  label: 'TikTok results for their category', type: 'textarea', placeholder: 'Who appears? View counts?', rows: 2 }
         ]
       }
@@ -566,15 +580,13 @@ const PHASES = [
 ];
 
 // ─────────────────────────────────────────────
-// LLM PROMPT — baked into every JSON export
+// LLM SYSTEM PROMPT
 // ─────────────────────────────────────────────
 const LLM_SYSTEM_PROMPT = `You are a senior digital marketing strategist and professional copywriter. Below is a structured digital presence audit for a business, collected manually from public sources. All data is raw observation — no analysis has been done yet.
 
 Based on this audit data, generate a complete, specific, actionable report. Use the business's actual name, city, industry, and findings throughout. Never use placeholder text like [business name] — fill everything in from the data provided.
 
 Generate ALL of the following sections:
-
----
 
 ## 1. EXECUTIVE SUMMARY
 - Overall digital health score (0–100, with a one-sentence justification)
@@ -588,7 +600,7 @@ For each audit phase in the data, write 2–3 sentences: what was found, what it
 List the top 10 actions ranked by revenue impact. For each:
 - What to do (specific steps, not vague advice)
 - Why it matters (reference the actual finding)
-- Effort level: Quick (under 1 hour, free) / Medium (1–5 hours) / Project (days+, may need help)
+- Effort: Quick (under 1 hour, free) / Medium (1–5 hours) / Project (days+)
 - Expected outcome
 
 ## 4. WEBSITE COPY — write all of the following using the business's actual data:
@@ -603,23 +615,21 @@ List the top 10 actions ranked by revenue impact. For each:
 For each active platform identified in the audit:
 - 5 specific post ideas with the first line / scroll-stopping hook written out
 - Recommended posting frequency based on the engagement data found
-- Best content format to prioritize (Reels, carousels, static, video) and why, based on what performed best
+- Best content format to prioritize and why, based on what performed best
 
 ## 6. COLD OUTREACH MESSAGES
-Write one WhatsApp message and one email (separate them clearly):
+Write one WhatsApp message and one email:
 - Under 150 words each
-- Open with one specific finding from this audit as the hook (not flattery, not generic)
-- State what has been prepared for them (audit report, copy rewrites, etc.)
-- End with a single low-friction CTA (15-minute call or "want me to send it over?")
+- Open with one specific finding from this audit as the hook (not flattery)
+- State what has been prepared for them
+- End with a single low-friction CTA
 
 ## 7. 30-60-90 DAY ROADMAP
 Month 1 — Quick wins and foundations (free/low-cost)
 Month 2 — Build authority and fix structural issues
 Month 3 — Scale what's working, close the competitive gap
 
----
-
-Format with clear headings. Be specific to this exact business. Prioritize by business impact. Do not give generic advice that could apply to any business.`;
+Format with clear headings. Be specific to this exact business. Prioritize by business impact.`;
 
 // ─────────────────────────────────────────────
 // RATING COLORS
@@ -629,39 +639,281 @@ const RATING_COLORS = {
 };
 
 // ─────────────────────────────────────────────
-// STATE
+// APP STATE
 // ─────────────────────────────────────────────
-let currentPhase = 0;
-const checked  = {};
-const findings = {};
-PHASES.forEach((p, pi) => p.steps.forEach((s, si) => {
-  checked[`${pi}-${si}`]  = false;
-  findings[`${pi}-${si}`] = { fields: {}, savedAt: null };
-}));
-const saveTimers = {};
+let currentPhase      = 0;
+let currentBusinessId = null;
+let currentBizName    = '';
+let checked           = {};
+let findings          = {};
+const saveTimers      = {};
+let dashboardUnsub    = null; // Firestore listener for dashboard
+
+function resetAuditState() {
+  currentPhase = 0;
+  checked  = {};
+  findings = {};
+  PHASES.forEach((p, pi) => p.steps.forEach((s, si) => {
+    checked[`${pi}-${si}`]  = false;
+    findings[`${pi}-${si}`] = { fields: {}, savedAt: null };
+  }));
+}
 
 // ─────────────────────────────────────────────
-// STORAGE
+// SCREEN MANAGEMENT
 // ─────────────────────────────────────────────
-function saveToStorage(pi, si) {
-  try { localStorage.setItem(`bizaudit:step:${pi}-${si}`, JSON.stringify({ checked: checked[`${pi}-${si}`], findings: findings[`${pi}-${si}`] })); }
-  catch(e) {}
+function showScreen(name) {
+  ['screen-loading','screen-login','screen-dashboard','screen-audit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = (id === `screen-${name}`) ? '' : 'none';
+  });
 }
-function saveClientName() {
-  try { localStorage.setItem('bizaudit:client', document.getElementById('client-name').value); } catch(e) {}
-}
-function loadAllFromStorage() {
-  const clientName = localStorage.getItem('bizaudit:client') || '';
-  if (clientName) {
-    document.getElementById('client-name').value = clientName;
-    document.getElementById('client-industry-badge').textContent = 'Active audit';
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+async function handleLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('login-btn');
+
+  errEl.style.display = 'none';
+  errEl.classList.remove('visible');
+
+  if (!email || !password) {
+    showLoginError('Please enter your email and password.');
+    return;
   }
-  PHASES.forEach((p, pi) => p.steps.forEach((s, si) => {
-    try {
-      const raw = localStorage.getItem(`bizaudit:step:${pi}-${si}`);
-      if (raw) { const d = JSON.parse(raw); checked[`${pi}-${si}`] = d.checked || false; findings[`${pi}-${si}`] = d.findings || { fields: {}, savedAt: null }; }
-    } catch(e) {}
-  }));
+
+  btn.disabled    = true;
+  btn.textContent = 'Signing in…';
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    // onAuthStateChanged will handle showing dashboard
+  } catch (e) {
+    btn.disabled    = false;
+    btn.textContent = 'Sign In';
+    const msgs = {
+      'auth/invalid-credential':    'Invalid email or password.',
+      'auth/user-not-found':        'No account found with this email.',
+      'auth/wrong-password':        'Incorrect password.',
+      'auth/too-many-requests':     'Too many attempts. Please wait and try again.',
+      'auth/network-request-failed':'Network error. Check your connection.',
+    };
+    showLoginError(msgs[e.code] || 'Sign in failed. Please try again.');
+  }
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent    = msg;
+  el.style.display  = 'block';
+  el.classList.add('visible');
+}
+
+async function handleSignOut() {
+  if (dashboardUnsub) { dashboardUnsub(); dashboardUnsub = null; }
+  await signOut(auth);
+}
+
+// Login on Enter key
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+  document.getElementById('login-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('login-password').focus();
+  });
+  // New business name — Enter to create
+  document.getElementById('new-biz-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') createNewBusiness();
+  });
+});
+
+// ─────────────────────────────────────────────
+// AUTH STATE LISTENER
+// ─────────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('dash-user-email').textContent = user.email;
+    showScreen('dashboard');
+    loadDashboard();
+  } else {
+    if (dashboardUnsub) { dashboardUnsub(); dashboardUnsub = null; }
+    showScreen('login');
+    // Reset login form
+    document.getElementById('login-btn').disabled    = false;
+    document.getElementById('login-btn').textContent = 'Sign In';
+  }
+});
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+function loadDashboard() {
+  const grid = document.getElementById('businesses-grid');
+  grid.innerHTML = '<div class="businesses-loading">Loading businesses…</div>';
+
+  if (dashboardUnsub) dashboardUnsub();
+
+  const q = query(collection(db, 'businesses'), orderBy('createdAt', 'desc'));
+  dashboardUnsub = onSnapshot(q, snapshot => {
+    if (snapshot.empty) {
+      grid.innerHTML = `
+        <div class="businesses-empty">
+          <p>No businesses yet.<br>Click <strong>+ New Business</strong> to start your first audit.</p>
+        </div>`;
+      return;
+    }
+    const totalSteps = PHASES.reduce((a, p) => a + p.steps.length, 0);
+    grid.innerHTML = '';
+    snapshot.docs.forEach(docSnap => {
+      const d        = docSnap.data();
+      const done     = d.completedSteps || 0;
+      const pct      = Math.round(done / totalSteps * 100);
+      const updated  = d.updatedAt ? new Date(d.updatedAt.toDate()).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
+      const card     = document.createElement('div');
+      card.className = 'biz-card';
+      card.innerHTML = `
+        <div>
+          <div class="biz-card-name">${escapeHtml(d.name)}</div>
+          <div class="biz-card-meta">Last updated: ${updated}</div>
+        </div>
+        <div class="biz-card-progress-wrap">
+          <div class="biz-card-progress-label">
+            <span>Progress</span>
+            <span>${done} / ${totalSteps} steps</span>
+          </div>
+          <div class="biz-card-bar"><div class="biz-card-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="biz-card-arrow">→</div>`;
+      card.addEventListener('click', () => openBusiness(docSnap.id, d.name));
+      grid.appendChild(card);
+    });
+  }, err => {
+    grid.innerHTML = `<div class="businesses-empty"><p>Error loading businesses: ${err.message}</p></div>`;
+  });
+}
+
+// ─────────────────────────────────────────────
+// NEW BUSINESS MODAL
+// ─────────────────────────────────────────────
+function openNewBusinessModal() {
+  const overlay = document.getElementById('new-biz-overlay');
+  document.getElementById('new-biz-name').value = '';
+  document.getElementById('new-biz-error').style.display = 'none';
+  document.getElementById('create-biz-btn').disabled    = false;
+  document.getElementById('create-biz-btn').textContent = 'Create & Start Audit';
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+  setTimeout(() => document.getElementById('new-biz-name').focus(), 80);
+}
+
+function closeNewBusinessModal() {
+  const overlay = document.getElementById('new-biz-overlay');
+  overlay.style.opacity = '0';
+  setTimeout(() => { overlay.style.display = 'none'; }, 200);
+}
+
+function handleNewBizOverlayClick(e) {
+  if (e.target === document.getElementById('new-biz-overlay')) closeNewBusinessModal();
+}
+
+async function createNewBusiness() {
+  const name   = document.getElementById('new-biz-name').value.trim();
+  const errEl  = document.getElementById('new-biz-error');
+  const btn    = document.getElementById('create-biz-btn');
+
+  errEl.style.display = 'none';
+  if (!name) { errEl.textContent = 'Please enter a business name.'; errEl.style.display = 'block'; return; }
+
+  btn.disabled    = true;
+  btn.textContent = 'Creating…';
+
+  try {
+    const totalSteps = PHASES.reduce((a, p) => a + p.steps.length, 0);
+    const docRef = await addDoc(collection(db, 'businesses'), {
+      name,
+      completedSteps: 0,
+      totalSteps,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    closeNewBusinessModal();
+    openBusiness(docRef.id, name);
+  } catch (e) {
+    btn.disabled    = false;
+    btn.textContent = 'Create & Start Audit';
+    errEl.textContent = 'Error creating business: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+// ─────────────────────────────────────────────
+// OPEN BUSINESS (enter audit screen)
+// ─────────────────────────────────────────────
+async function openBusiness(bizId, bizName) {
+  currentBusinessId = bizId;
+  currentBizName    = bizName;
+  resetAuditState();
+
+  document.getElementById('topbar-biz-name').textContent = bizName;
+  document.getElementById('global-save-status').textContent = 'Loading…';
+  showScreen('audit');
+
+  // Load all step data from Firestore
+  try {
+    const stepsSnap = await getDocs(collection(db, 'businesses', bizId, 'steps'));
+    stepsSnap.forEach(s => {
+      const data = s.data();
+      const key  = s.id; // e.g. "0-1"
+      if (key in checked) {
+        checked[key]  = data.checked  || false;
+        findings[key] = {
+          fields:  data.fields  || {},
+          savedAt: data.savedAt || null
+        };
+      }
+    });
+  } catch (e) {
+    console.error('Error loading steps:', e);
+  }
+
+  renderSidebar();
+  renderMain();
+  updateProgress();
+  document.getElementById('global-save-status').textContent = 'All changes saved to cloud';
+}
+
+function backToDashboard() {
+  showScreen('dashboard');
+  currentBusinessId = null;
+  currentBizName    = '';
+}
+
+// ─────────────────────────────────────────────
+// FIRESTORE SAVE
+// ─────────────────────────────────────────────
+async function saveStepToFirestore(pi, si) {
+  if (!currentBusinessId) return;
+  const key  = `${pi}-${si}`;
+  const data = {
+    checked:  checked[key]  || false,
+    fields:   (findings[key] && findings[key].fields) || {},
+    savedAt:  findings[key] && findings[key].savedAt ? findings[key].savedAt : null
+  };
+  try {
+    await setDoc(doc(db, 'businesses', currentBusinessId, 'steps', key), data);
+    // Update business updatedAt
+    await updateDoc(doc(db, 'businesses', currentBusinessId), {
+      updatedAt:      serverTimestamp(),
+      completedSteps: doneSteps()
+    });
+  } catch (e) {
+    console.error('Firestore save failed:', e);
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -793,17 +1045,17 @@ function renderMain() {
               <div class="output-text">${escapeHtml(s.output)}</div>
             </div>
           </div>
-          <div class="findings-section" id="findings-section-${si}">
+          <div class="findings-section">
             <div class="findings-header">
               <div class="findings-title" style="color:${p.color}">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v9a1 1 0 01-1 1H3a1 1 0 01-1-1V2z" stroke="${p.color}" stroke-width="1.4"/><path d="M4 6h6M4 8.5h4" stroke="${p.color}" stroke-width="1.4" stroke-linecap="round"/><rect x="5" y="1" width="4" height="2" rx="0.5" stroke="${p.color}" stroke-width="1.4"/></svg>
                 Record Your Findings
               </div>
               <div class="save-status" id="save-status-${si}">
-                <span class="si"></span><span id="save-text-${si}">${f&&f.savedAt?'Saved':'Not saved yet'}</span>
+                <span class="si"></span><span id="save-text-${si}">${f&&f.savedAt?'Saved to cloud':'Not saved yet'}</span>
               </div>
             </div>
-            <div class="findings-fields" id="findings-fields-${si}">${renderFindingsFields(s,currentPhase,si)}</div>
+            <div class="findings-fields">${renderFindingsFields(s,currentPhase,si)}</div>
           </div>
         </div>
       </div>`;
@@ -818,11 +1070,11 @@ function renderMain() {
 
   document.getElementById('main').innerHTML = h;
   document.getElementById('main').scrollTop = 0;
-  p.steps.forEach((s, si) => { if (findings[`${currentPhase}-${si}`]&&findings[`${currentPhase}-${si}`].savedAt) setSaveStatus(si,'saved','Saved'); });
+  p.steps.forEach((s, si) => { if (findings[`${currentPhase}-${si}`]&&findings[`${currentPhase}-${si}`].savedAt) setSaveStatus(si,'saved','Saved to cloud'); });
 }
 
 // ─────────────────────────────────────────────
-// FIELD HANDLERS
+// FIELD HANDLERS — save to Firestore
 // ─────────────────────────────────────────────
 function onFieldInput(pi, si, fieldKey, el) {
   const key = `${pi}-${si}`;
@@ -830,14 +1082,14 @@ function onFieldInput(pi, si, fieldKey, el) {
   findings[key].fields[fieldKey] = el.value;
   setSaveStatus(si, 'saving', 'Saving…');
   clearTimeout(saveTimers[key]);
-  saveTimers[key] = setTimeout(() => {
+  saveTimers[key] = setTimeout(async () => {
     findings[key].savedAt = new Date().toISOString();
-    saveToStorage(pi, si);
-    setSaveStatus(si, 'saved', 'Saved');
+    await saveStepToFirestore(pi, si);
+    setSaveStatus(si, 'saved', 'Saved to cloud');
     updateNotePreview(pi, si);
     renderSidebar();
     flashGlobalSave();
-  }, 600);
+  }, 700);
 }
 
 function setRating(pi, si, fieldKey, val) {
@@ -852,14 +1104,14 @@ function setRating(pi, si, fieldKey, val) {
   });
   setSaveStatus(si, 'saving', 'Saving…');
   clearTimeout(saveTimers[key]);
-  saveTimers[key] = setTimeout(() => {
+  saveTimers[key] = setTimeout(async () => {
     findings[key].savedAt = new Date().toISOString();
-    saveToStorage(pi, si);
-    setSaveStatus(si, 'saved', 'Saved');
+    await saveStepToFirestore(pi, si);
+    setSaveStatus(si, 'saved', 'Saved to cloud');
     updateNotePreview(pi, si);
     renderSidebar();
     flashGlobalSave();
-  }, 300);
+  }, 400);
 }
 
 function setSaveStatus(si, state, text) {
@@ -873,15 +1125,18 @@ function updateNotePreview(pi, si) {
   const card = document.getElementById(`card-${si}`), prev = document.getElementById(`preview-${si}`);
   if (!card||!prev) return;
   card.classList.toggle('has-notes', hn); prev.classList.toggle('visible', hn);
-  if (hn) { const f=findings[`${pi}-${si}`]; const fn=f&&f.fields?Object.values(f.fields).find(v=>v&&String(v).trim()!==''):''; const sp=prev.querySelector('span'); if (sp&&fn){const s=String(fn);sp.textContent=s.substring(0,80)+(s.length>80?'…':'')} }
+  if (hn) {
+    const f=findings[`${pi}-${si}`]; const fn=f&&f.fields?Object.values(f.fields).find(v=>v&&String(v).trim()!==''):'';
+    const sp=prev.querySelector('span'); if(sp&&fn){const s=String(fn);sp.textContent=s.substring(0,80)+(s.length>80?'…':'');}
+  }
 }
 
 function flashGlobalSave() {
   const el = document.getElementById('global-save-status');
   if (!el) return;
-  el.textContent = 'Saved just now';
+  el.textContent = 'Saved to cloud';
   clearTimeout(window._globalSaveTimer);
-  window._globalSaveTimer = setTimeout(() => { el.textContent = 'All changes autosaved'; }, 2000);
+  window._globalSaveTimer = setTimeout(() => { if(el) el.textContent = 'All changes saved to cloud'; }, 2000);
 }
 
 // ─────────────────────────────────────────────
@@ -897,11 +1152,14 @@ function toggleCheck(si) {
   checked[key] = !checked[key];
   document.getElementById(`card-${si}`).classList.toggle('done', checked[key]);
   document.getElementById(`chk-${si}`).classList.toggle('checked', checked[key]);
-  saveToStorage(currentPhase, si); updateProgress(); renderSidebar();
+  updateProgress(); renderSidebar();
   const pd = phaseDone(currentPhase), pt = PHASES[currentPhase].steps.length;
   const dn = document.getElementById('phase-done-num'), fi = document.getElementById('phase-progress-fill');
   if (dn) dn.textContent = pd;
   if (fi) fi.style.width = (pt?Math.round(pd/pt*100):0)+'%';
+  // Save to Firestore (no debounce for checkbox — immediate)
+  if (!findings[key]) findings[key] = { fields:{}, savedAt:null };
+  saveStepToFirestore(currentPhase, si);
 }
 
 function toggleDetail(si) {
@@ -911,27 +1169,21 @@ function toggleDetail(si) {
 }
 
 // ─────────────────────────────────────────────
-// CLIENT NAME
-// ─────────────────────────────────────────────
-let clientSaveTimer = null;
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('client-name').addEventListener('input', (e) => {
-    document.getElementById('client-industry-badge').textContent = e.target.value.trim() ? 'Active audit' : 'No client set';
-    clearTimeout(clientSaveTimer); clientSaveTimer = setTimeout(saveClientName, 800);
-  });
-});
-
-// ─────────────────────────────────────────────
-// MODAL
+// MODAL — FINDINGS
 // ─────────────────────────────────────────────
 let activeTab = 'summary';
 function openModal() {
-  const cn = document.getElementById('client-name').value||'Unnamed Business';
-  document.getElementById('modal-sub').textContent = `Audit findings for ${cn}`;
-  document.getElementById('modal-overlay').classList.add('visible');
+  const overlay = document.getElementById('modal-overlay');
+  document.getElementById('modal-sub').textContent = `Audit findings for ${currentBizName}`;
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => { overlay.classList.add('visible'); });
   switchTab(activeTab);
 }
-function closeModal() { document.getElementById('modal-overlay').classList.remove('visible'); }
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('visible');
+  setTimeout(() => { overlay.style.display = 'none'; }, 200);
+}
 function handleOverlayClick(e) { if (e.target===document.getElementById('modal-overlay')) closeModal(); }
 function switchTab(tab) {
   activeTab = tab;
@@ -946,7 +1198,6 @@ function switchTab(tab) {
 // ─────────────────────────────────────────────
 function renderSummaryTab() {
   const total=PHASES.reduce((a,p)=>a+p.steps.length,0), done=doneSteps(), filled=countAllFindings();
-  const client=document.getElementById('client-name').value||'Not set';
   let crits=0;
   PHASES.forEach((p,pi)=>p.steps.forEach((s,si)=>{const f=findings[`${pi}-${si}`];if(f&&f.fields)Object.values(f.fields).forEach(v=>{if(v==='critical')crits++;})}));
   let h=`
@@ -956,7 +1207,7 @@ function renderSummaryTab() {
       <div class="summary-stat"><div class="summary-stat-num" style="color:#dc2626">${crits}</div><div class="summary-stat-label">Critical flags</div></div>
     </div>
     <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;padding:10px 14px;background:var(--main-bg);border-radius:6px;border:1px solid var(--border-light)">
-      <strong>Client:</strong> ${escapeHtml(client)} &nbsp;·&nbsp; <strong>Date:</strong> ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}
+      <strong>Business:</strong> ${escapeHtml(currentBizName)} &nbsp;·&nbsp; <strong>Date:</strong> ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}
     </div>
     <div style="display:flex;flex-direction:column;gap:8px">`;
   PHASES.forEach((p,pi)=>{
@@ -999,30 +1250,28 @@ function renderAllTab() {
 }
 
 // ─────────────────────────────────────────────
-// EXPORT TAB — LLM prompt baked into JSON
+// EXPORT TAB
 // ─────────────────────────────────────────────
 function renderExportTab() {
-  const clientName = document.getElementById('client-name').value||'Unknown Business';
   const exportData = {
     _instructions: {
       how_to_use: 'Copy this entire JSON and paste it into ChatGPT, Claude, or any AI assistant. The llm_prompt field contains the full system instruction — the model will generate a complete audit report, all website copy, social media plan, cold outreach messages, and a 30-60-90 day roadmap specific to this business.',
       llm_prompt: LLM_SYSTEM_PROMPT
     },
     meta: {
-      client: clientName,
-      audit_date: new Date().toISOString().split('T')[0],
+      business:        currentBizName,
+      audit_date:      new Date().toISOString().split('T')[0],
       steps_completed: doneSteps(),
-      steps_total: totalSteps(),
-      fields_filled: countAllFindings(),
-      generated_by: 'BizAudit Cold Prospect Framework'
+      steps_total:     totalSteps(),
+      fields_filled:   countAllFindings(),
+      generated_by:    'BizAudit Cold Prospect Framework'
     },
     audit_data: PHASES.map((p,pi)=>({
-      phase_id: pi+1,
-      phase_name: p.name,
+      phase_id: pi+1, phase_name: p.name,
       steps: p.steps.map((s,si)=>{
         const key=`${pi}-${si}`, f=findings[key], raw={};
         if(f&&f.fields) s.fields.forEach(field=>{const v=f.fields[field.key];if(v&&String(v).trim())raw[field.key]=v;});
-        return { step_id:si+1, step_name:s.name, completed:checked[key]||false, data:raw, saved_at:(f&&f.savedAt)||null };
+        return { step_id:si+1, step_name:s.name, completed:checked[key]||false, data:raw };
       })
     }))
   };
@@ -1035,13 +1284,13 @@ function renderExportTab() {
         Ready to generate your full report with AI
       </div>
       <div style="font-size:12px;color:#166534;line-height:1.65">
-        Copy the JSON below and paste it into <strong>ChatGPT</strong>, <strong>Claude</strong>, or any AI assistant. It will automatically generate: full audit report · website copy (H1, meta tags, GBP description) · social media content plan · cold outreach messages · 30-60-90 day roadmap — all specific to <strong>${escapeHtml(clientName)}</strong>.
+        Copy the JSON below and paste it into <strong>ChatGPT</strong>, <strong>Claude</strong>, or any AI. It will generate: full report · website copy · meta tags · GBP description · social media plan · cold outreach · 30-60-90 roadmap — all specific to <strong>${escapeHtml(currentBizName)}</strong>.
       </div>
     </div>
     <div class="export-code" id="export-json">${escapeHtml(json)}</div>
     <div class="export-actions">
       <button class="btn-copy" id="copy-btn" onclick="copyExport()">📋 Copy JSON</button>
-      <button class="btn-copy" onclick="downloadExport('${escapeHtml(clientName.replace(/[^a-z0-9]/gi,'_'))}')">⬇ Download .json</button>
+      <button class="btn-copy" onclick="downloadExport('${escapeHtml(currentBizName.replace(/[^a-z0-9]/gi,'_'))}')">⬇ Download .json</button>
     </div>`;
 }
 
@@ -1062,7 +1311,23 @@ function downloadExport(slug) {
 }
 
 // ─────────────────────────────────────────────
-// INIT
+// EXPOSE FUNCTIONS TO HTML onclick HANDLERS
 // ─────────────────────────────────────────────
-function init() { loadAllFromStorage(); renderSidebar(); renderMain(); updateProgress(); }
-init();
+window.handleLogin            = handleLogin;
+window.handleSignOut          = handleSignOut;
+window.openNewBusinessModal   = openNewBusinessModal;
+window.closeNewBusinessModal  = closeNewBusinessModal;
+window.handleNewBizOverlayClick = handleNewBizOverlayClick;
+window.createNewBusiness      = createNewBusiness;
+window.backToDashboard        = backToDashboard;
+window.switchPhase            = switchPhase;
+window.toggleCheck            = toggleCheck;
+window.toggleDetail           = toggleDetail;
+window.setRating              = setRating;
+window.onFieldInput           = onFieldInput;
+window.openModal              = openModal;
+window.closeModal             = closeModal;
+window.handleOverlayClick     = handleOverlayClick;
+window.switchTab              = switchTab;
+window.copyExport             = copyExport;
+window.downloadExport         = downloadExport;
