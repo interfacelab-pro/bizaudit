@@ -1197,11 +1197,16 @@ function openModal() {
   const overlay = document.getElementById('modal-overlay');
   document.getElementById('modal-sub').textContent = `Audit findings for ${currentBizName}`;
   overlay.style.display = 'flex';
-  requestAnimationFrame(() => { overlay.classList.add('visible'); });
+  overlay.style.opacity = '0';
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    overlay.classList.add('visible');
+  });
   switchTab(activeTab);
 }
 function closeModal() {
   const overlay = document.getElementById('modal-overlay');
+  overlay.style.opacity = '0';
   overlay.classList.remove('visible');
   setTimeout(() => { overlay.style.display = 'none'; }, 200);
 }
