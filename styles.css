@@ -332,6 +332,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: va
   transition: opacity 0.2s;
 }
 .modal { background: #fff; border-radius: 14px; width: 100%; max-width: 740px; box-shadow: 0 24px 60px rgba(0,0,0,0.25); overflow: hidden; transform: translateY(12px); transition: transform 0.2s; }
+.modal-overlay.visible { opacity: 1; }
 .modal-overlay.visible .modal { transform: translateY(0); }
 .modal-sm { max-width: 440px; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border-light); background: var(--sidebar-bg); }
