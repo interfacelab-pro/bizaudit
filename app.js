@@ -1064,7 +1064,7 @@ function renderMain() {
       <button class="btn btn-primary" onclick="${isLast?'openModal()':'switchPhase('+(currentPhase+1)+')'}">${isLast?'Export for AI Report →':'Next phase →'}</button>
     </div>`;
 
-  document.getElementById('main').innerHTML = h;
+  document.getElementById('main').innerHTML = '<div class="main-inner">' + h + '</div>';
   document.getElementById('main').scrollTop = 0;
   p.steps.forEach((s, si) => { if (findings[`${currentPhase}-${si}`]&&findings[`${currentPhase}-${si}`].savedAt) setSaveStatus(si,'saved','Saved to cloud'); });
 }
