@@ -900,20 +900,16 @@ async function saveStepToFirestore(pi, si) {
   if (!currentBusinessId) return;
   const key  = `${pi}-${si}`;
   const data = {
-    checked:  checked[key]  || false,
-    fields:   (findings[key] && findings[key].fields) || {},
-    savedAt:  findings[key] && findings[key].savedAt ? findings[key].savedAt : null
+    checked: checked[key] || false,
+    fields:  (findings[key] && findings[key].fields) || {},
+    savedAt: findings[key] && findings[key].savedAt ? findings[key].savedAt : null
   };
-  try {
-    await setDoc(doc(db, 'businesses', currentBusinessId, 'steps', key), data);
-    // Update business updatedAt
-    await updateDoc(doc(db, 'businesses', currentBusinessId), {
-      updatedAt:      serverTimestamp(),
-      completedSteps: doneSteps()
-    });
-  } catch (e) {
-    console.error('Firestore save failed:', e);
-  }
+  // Let errors propagate to the caller so UI can show them
+  await setDoc(doc(db, 'businesses', currentBusinessId, 'steps', key), data);
+  await updateDoc(doc(db, 'businesses', currentBusinessId), {
+    updatedAt:      serverTimestamp(),
+    completedSteps: doneSteps()
+  });
 }
 
 // ─────────────────────────────────────────────
@@ -958,7 +954,7 @@ function renderSidebar() {
     h += `
       <div class="nav-item${pi===currentPhase?' active':''}" onclick="switchPhase(${pi})">
         <div class="nav-num">${String(pi+1).padStart(2,'0')}</div>
-        <div class="nav-info"><div class="nav-label">${p.name}</div><div class="nav-count">${pd} / ${pt} done</div></div>
+        <div class="nav-info"><div class="nav-label">${p.name}</div><div class="nav-count">${pd}/${pt}</div></div>
         <div class="nav-has-notes${hasNotes?' filled':''}"></div>
       </div>
       <div class="nav-pbar"><div class="nav-pfill" style="width:${Math.round(pd/pt*100)}%;background:${p.color}"></div></div>`;
@@ -1084,11 +1080,17 @@ function onFieldInput(pi, si, fieldKey, el) {
   clearTimeout(saveTimers[key]);
   saveTimers[key] = setTimeout(async () => {
     findings[key].savedAt = new Date().toISOString();
-    await saveStepToFirestore(pi, si);
-    setSaveStatus(si, 'saved', 'Saved to cloud');
-    updateNotePreview(pi, si);
-    renderSidebar();
-    flashGlobalSave();
+    try {
+      await saveStepToFirestore(pi, si);
+      setSaveStatus(si, 'saved', 'Saved to cloud');
+      updateNotePreview(pi, si);
+      renderSidebar();
+      flashGlobalSave();
+    } catch (e) {
+      console.error('Save failed:', e);
+      setSaveStatus(si, 'error', 'Save failed — check connection');
+      flashGlobalSaveError(e.message);
+    }
   }, 700);
 }
 
@@ -1106,11 +1108,17 @@ function setRating(pi, si, fieldKey, val) {
   clearTimeout(saveTimers[key]);
   saveTimers[key] = setTimeout(async () => {
     findings[key].savedAt = new Date().toISOString();
-    await saveStepToFirestore(pi, si);
-    setSaveStatus(si, 'saved', 'Saved to cloud');
-    updateNotePreview(pi, si);
-    renderSidebar();
-    flashGlobalSave();
+    try {
+      await saveStepToFirestore(pi, si);
+      setSaveStatus(si, 'saved', 'Saved to cloud');
+      updateNotePreview(pi, si);
+      renderSidebar();
+      flashGlobalSave();
+    } catch (e) {
+      console.error('Save failed:', e);
+      setSaveStatus(si, 'error', 'Save failed — check connection');
+      flashGlobalSaveError(e.message);
+    }
   }, 400);
 }
 
@@ -1134,9 +1142,19 @@ function updateNotePreview(pi, si) {
 function flashGlobalSave() {
   const el = document.getElementById('global-save-status');
   if (!el) return;
+  el.style.color = '';
   el.textContent = 'Saved to cloud';
   clearTimeout(window._globalSaveTimer);
-  window._globalSaveTimer = setTimeout(() => { if(el) el.textContent = 'All changes saved to cloud'; }, 2000);
+  window._globalSaveTimer = setTimeout(() => { if(el) { el.style.color = ''; el.textContent = 'All changes saved to cloud'; } }, 2000);
+}
+
+function flashGlobalSaveError(msg) {
+  const el = document.getElementById('global-save-status');
+  if (!el) return;
+  el.style.color = '#dc2626';
+  el.textContent = 'Save failed: ' + (msg || 'unknown error');
+  clearTimeout(window._globalSaveTimer);
+  window._globalSaveTimer = setTimeout(() => { if(el) { el.style.color = ''; el.textContent = 'All changes saved to cloud'; } }, 6000);
 }
 
 // ─────────────────────────────────────────────
@@ -1157,9 +1175,12 @@ function toggleCheck(si) {
   const dn = document.getElementById('phase-done-num'), fi = document.getElementById('phase-progress-fill');
   if (dn) dn.textContent = pd;
   if (fi) fi.style.width = (pt?Math.round(pd/pt*100):0)+'%';
-  // Save to Firestore (no debounce for checkbox — immediate)
+  // Save checkbox to Firestore immediately
   if (!findings[key]) findings[key] = { fields:{}, savedAt:null };
-  saveStepToFirestore(currentPhase, si);
+  saveStepToFirestore(currentPhase, si).catch(e => {
+    console.error('Checkbox save failed:', e);
+    flashGlobalSaveError(e.message);
+  });
 }
 
 function toggleDetail(si) {
