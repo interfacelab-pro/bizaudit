@@ -385,3 +385,37 @@ body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: va
   .dash-title-row { flex-direction: column; gap: 16px; }
   .businesses-grid { grid-template-columns: 1fr; }
 }
+
+/* ─── FIX: Modal input — override dark login styles with light theme ─── */
+.modal .login-input {
+  background: var(--main-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+}
+.modal .login-input::placeholder {
+  color: #adb5bd !important;
+}
+.modal .login-input:focus {
+  background: #fff !important;
+  border-color: #2563eb !important;
+}
+.modal .login-label {
+  color: var(--text-secondary) !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+/* ─── FIX: Progress pill — clean single-line format ─── */
+.progress-pill {
+  white-space: nowrap;
+  letter-spacing: 0;
+}
+
+/* ─── FIX: Nav count — prevent any wrapping glitch ─── */
+.nav-count {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Save status error state ─── */
+.save-status.error { color: #dc2626; }
