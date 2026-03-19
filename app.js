@@ -582,54 +582,144 @@ const PHASES = [
 // ─────────────────────────────────────────────
 // LLM SYSTEM PROMPT
 // ─────────────────────────────────────────────
-const LLM_SYSTEM_PROMPT = `You are a senior digital marketing strategist and professional copywriter. Below is a structured digital presence audit for a business, collected manually from public sources. All data is raw observation — no analysis has been done yet.
+const LLM_SYSTEM_PROMPT = `You are a senior digital marketing strategist, professional copywriter, UX architect, and business growth consultant. Below is a structured digital presence audit for a business, collected manually from public sources. All data is raw observation — no analysis has been done yet.
 
-Based on this audit data, generate a complete, specific, actionable report. Use the business's actual name, city, industry, and findings throughout. Never use placeholder text like [business name] — fill everything in from the data provided.
+Before generating the reports, search online for the latest trends, competitor strategies, and industry benchmarks relevant to this business's category and city. Use those real-world insights alongside the audit data to make every recommendation specific, current, and actionable.
 
-Generate ALL of the following sections:
+Based on this audit data and your online research, generate TWO completely separate reports as described below. Use the business's actual name, city, industry, and findings throughout every section. Never use placeholder text — fill everything in from the data.
+
+---
+
+# REPORT 1: INTERNAL REPORT (FOR MARKETING & DEVELOPMENT TEAM)
+This report is detailed, technical, and strategic. The audience is the internal team executing the work.
 
 ## 1. EXECUTIVE SUMMARY
-- Overall digital health score (0–100, with a one-sentence justification)
-- Top 3 critical issues costing them customers right now (specific, tied to the data)
-- Top 3 quick wins they can implement this week (free or near-free)
+- Overall digital health score (0-100) with a one-paragraph justification referencing specific findings
+- Top 5 critical issues costing this business customers right now, each tied to a specific audit finding
+- Top 5 quick wins executable this week, most for free
 
-## 2. PHASE-BY-PHASE ANALYSIS
-For each audit phase in the data, write 2–3 sentences: what was found, what it means for the business, and the single most important action.
+## 2. INDUSTRY & COMPETITOR INTELLIGENCE
+- Search online for the top 3-5 competitors in this business's category and city
+- For each competitor found: what they do well online, their estimated traffic, their top keywords, their social presence, and any ads they run
+- What industry leaders in this category do that this business currently does not
+- Emerging trends in this industry that represent growth opportunities
 
-## 3. PRIORITY ACTION PLAN
-List the top 10 actions ranked by revenue impact. For each:
-- What to do (specific steps, not vague advice)
-- Why it matters (reference the actual finding)
-- Effort: Quick (under 1 hour, free) / Medium (1–5 hours) / Project (days+)
-- Expected outcome
+## 3. PHASE-BY-PHASE AUDIT ANALYSIS
+For each of the 11 audit phases, write a detailed paragraph: what was found, what it means commercially, what the competitor benchmark looks like, and the single highest-impact action with specific steps.
 
-## 4. WEBSITE COPY — write all of the following using the business's actual data:
-- New homepage H1 headline (what they do + city + key benefit, under 10 words)
-- New homepage subheadline (one compelling sentence building on the H1)
-- New <title> tag (max 60 chars: Business Name | Service | City)
-- New meta description (max 155 chars, includes a call to action)
-- New GBP description (max 750 chars: city, services, differentiator, social proof if available, CTA)
-- New Facebook/Instagram bio (max 150 chars, includes location and what they do)
+## 4. PRIORITY ACTION PLAN
+Top 15 actions ranked by revenue impact. For each:
+- Exact steps to execute (not vague)
+- Why it matters (reference the specific finding and competitor gap)
+- Effort: Quick / Medium / Project
+- Who should do it: Owner / Marketing / Developer
+- Expected outcome with a realistic timeframe
 
-## 5. SOCIAL MEDIA CONTENT PLAN
-For each active platform identified in the audit:
-- 5 specific post ideas with the first line / scroll-stopping hook written out
-- Recommended posting frequency based on the engagement data found
-- Best content format to prioritize and why, based on what performed best
+## 5. WEBSITE - FULL PLAN
 
-## 6. COLD OUTREACH MESSAGES
+### 5a. Sitemap
+Provide a complete recommended sitemap for this business. Include every page that should exist based on their industry, services, and local SEO needs. Structure it as: Primary pages, Secondary pages, Blog/Content pages, Landing pages (if applicable).
+
+### 5b. Page-by-page content plan
+For every page in the sitemap, specify:
+- Page purpose and primary keyword to target
+- Above-the-fold section: what headline, subheadline, and CTA should appear
+- Key sections to include on the page with a brief description of each section's content
+- Trust signals to include on this specific page
+- Internal linking recommendations
+
+### 5c. All website copy
+- Homepage H1 headline (service + city + key benefit, under 10 words)
+- Homepage subheadline (one compelling sentence)
+- New title tag (max 60 chars: Business Name | Service | City)
+- New meta description (max 155 chars, includes CTA)
+- New GBP description (max 750 chars: city, services, differentiator, social proof, CTA)
+- Facebook/Instagram bio (max 150 chars)
+- Copy for the hero section of every primary page (H1 + subheadline + CTA button text)
+
+### 5d. Custom app and tool recommendations
+Based on this business's industry and operations signals from the audit:
+- Identify whether a custom web app, mobile app, or automation tool would meaningfully help this business grow revenue or reduce operational friction
+- If yes: describe exactly what it should do, the core features, the user flow, and the expected business impact
+- If a booking system, CRM, customer portal, loyalty programme, or order tracking tool would benefit this business, specify it in detail
+- Prioritise by ROI: which digital tool would have the fastest payback
+
+## 6. LOCAL SEO ACTION PLAN
+- Exact NAP corrections needed per platform based on audit data
+- Directory submission list: every directory this business should be listed on, prioritised by domain authority
+- Citation building strategy: which citations to fix first and why
+- Google Business Profile optimisation checklist with exact copy to use
+- Schema markup recommendations for this business type
+
+## 7. SOCIAL MEDIA STRATEGY
+For each active platform found in the audit:
+- Content pillars (3-4 themes to post about consistently)
+- 10 specific post ideas with the full first line and hook written out
+- Recommended posting schedule with days and times based on the industry
+- Best content format to prioritise and why
+- Engagement tactics: how to grow followers and response rate in 90 days
+
+## 8. CONTENT & SEO PLAN
+- Top 20 keywords to target (mix of short-tail and long-tail), with estimated search volume and difficulty
+- Blog content calendar: 12 article ideas with titles, target keyword, and outline
+- Video content ideas for YouTube and TikTok based on what competitors rank for
+- Pillar page and cluster content strategy
+
+## 9. COLD OUTREACH MESSAGES
 Write one WhatsApp message and one email:
 - Under 150 words each
-- Open with one specific finding from this audit as the hook (not flattery)
+- Open with one specific finding from this audit as the hook
 - State what has been prepared for them
 - End with a single low-friction CTA
 
-## 7. 30-60-90 DAY ROADMAP
-Month 1 — Quick wins and foundations (free/low-cost)
-Month 2 — Build authority and fix structural issues
-Month 3 — Scale what's working, close the competitive gap
+## 10. 30-60-90 DAY EXECUTION ROADMAP
+For each month, list specific tasks with owner (team member role), effort, and expected outcome:
+Month 1 - Foundation: quick wins, fixes, and GBP/NAP corrections
+Month 2 - Build: content, backlinks, website improvements, social consistency
+Month 3 - Scale: paid amplification, conversion optimisation, review generation
 
-Format with clear headings. Be specific to this exact business. Prioritize by business impact.`;
+---
+
+# REPORT 2: CLIENT REPORT
+This report is polished, jargon-free, and written for a business owner who is not technical. It should feel like a professional agency deliverable - clear, confident, and focused on business outcomes not technical details.
+
+## 1. YOUR DIGITAL PRESENCE SCORE
+- Score out of 100 with a simple text-based breakdown
+- One paragraph written directly to the business owner explaining what the score means in plain language
+- Three things already being done well (genuine positives from the audit data)
+
+## 2. THE THREE BIGGEST OPPORTUNITIES
+Choose the three highest-impact improvements. For each:
+- A clear non-technical headline (e.g. "Your Google listing is invisible to customers")
+- A plain-English explanation of the problem and why it costs them money
+- What success looks like after fixing it
+- One simple next step they can take this week
+
+## 3. YOUR WEBSITE PLAN
+- Explain in plain language what the new website structure should look like and why
+- List every page they need with a one-sentence description of its purpose
+- Show the new homepage headline and subheadline side-by-side with the current one
+- Describe any app or digital tool recommended for their business in plain business terms: what it does, what problem it solves, rough cost range
+
+## 4. YOUR ONLINE GROWTH PLAN
+A simple 3-month plan written as bullet points the owner can follow:
+- Month 1: What to do yourself this month (free actions)
+- Month 2: What to ask your team or agency to do
+- Month 3: What to invest in and what to expect back
+
+## 5. WHAT YOUR COMPETITORS ARE DOING
+- 2-3 competitors found online with a plain-language comparison
+- What they do better online and what this business can do to close or overtake them
+- One specific tactic a competitor uses that this business should copy immediately
+
+## 6. NEXT STEPS
+- A clear prioritised list of 5 actions, numbered, plain language
+- Who should do each one: owner, team, or agency
+- Estimated time and cost for each
+
+---
+
+Format both reports with clear headings and section separators. Label REPORT 1 and REPORT 2 clearly at the top. Be specific to this exact business - no generic advice that could apply to any business. Every recommendation must reference a real finding from the audit data or a real competitor and industry insight found online.`;
 
 // ─────────────────────────────────────────────
 // RATING COLORS
@@ -1281,7 +1371,6 @@ function renderAllTab() {
 function renderExportTab() {
   const exportData = {
     _instructions: {
-      how_to_use: 'Copy this entire JSON and paste it into ChatGPT, Claude, or any AI assistant. The llm_prompt field contains the full system instruction — the model will generate a complete audit report, all website copy, social media plan, cold outreach messages, and a 30-60-90 day roadmap specific to this business.',
       llm_prompt: LLM_SYSTEM_PROMPT
     },
     meta: {
@@ -1310,7 +1399,7 @@ function renderExportTab() {
         Ready to generate your full report with AI
       </div>
       <div style="font-size:12px;color:#166534;line-height:1.65">
-        Copy the JSON below and paste it into <strong>ChatGPT</strong>, <strong>Claude</strong>, or any AI. It will generate: full report · website copy · meta tags · GBP description · social media plan · cold outreach · 30-60-90 roadmap — all specific to <strong>${escapeHtml(currentBizName)}</strong>.
+        Copy the JSON below and paste it into <strong>ChatGPT</strong>, <strong>Claude</strong>, or any AI. It will generate two full reports — one for your internal team (with sitemap, page plan, SEO, social strategy, app recommendations, and 30-60-90 roadmap) and one for the client — all specific to <strong>${escapeHtml(currentBizName)}</strong>.
       </div>
     </div>
     <div class="export-code" id="export-json">${escapeHtml(json)}</div>
