@@ -18,10 +18,10 @@
 }
 
 html { scroll-behavior: smooth; }
-body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: var(--text-primary); min-height: 100vh; }
+body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: var(--text-primary); }
 
 /* ─── SCREENS ─── */
-.screen { min-height: 100vh; }
+.screen { height: 100vh; }
 
 /* ─── LOADING SCREEN ─── */
 #screen-loading {
@@ -206,7 +206,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: va
 #screen-audit {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   overflow: hidden;
 }
 /* topbar inside audit screen — no longer sticky, flex handles it */
