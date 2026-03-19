@@ -203,12 +203,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: va
 .dot-live { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
 
 /* ─── LAYOUT ─── */
-.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 88px); }
+.layout { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 89px); }
 
 /* ─── SIDEBAR ─── */
 .sidebar {
   background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border);
-  overflow-y: auto; position: sticky; top: 88px; height: calc(100vh - 88px);
+  overflow-y: auto; position: sticky; top: 89px; height: calc(100vh - 89px);
   padding: 16px 0 32px;
 }
 .sidebar::-webkit-scrollbar { width: 3px; }
