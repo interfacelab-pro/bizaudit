@@ -1162,7 +1162,7 @@ function flashGlobalSaveError(msg) {
 // ─────────────────────────────────────────────
 function switchPhase(i) {
   if (i<0||i>=PHASES.length) return;
-  currentPhase = i; renderSidebar(); renderMain(); window.scrollTo(0,0);
+  currentPhase = i; renderSidebar(); renderMain(); const m=document.getElementById('main'); if(m) m.scrollTop=0;
 }
 
 function toggleCheck(si) {
