@@ -1106,43 +1106,24 @@ function renderMain() {
               <span style="color:#16a34a;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px">${firstNote?escapeHtml(String(firstNote).substring(0,80))+(String(firstNote).length>80?'…':''):'Findings recorded'}</span>
             </div>
           </div>
-          <button class="detail-btn" id="btn-${si}" onclick="toggleDetail(${si})">Details ▾</button>
+          <button class="info-btn" onclick="openGuidelineModal(${currentPhase},${si})" title="View step guidelines">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 7v4.5M8 5.2v.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
-        <div class="step-detail" id="det-${si}" style="--ph-color:${p.color}">
-          <div class="detail-section">
-            <div class="detail-label">What to check</div>
-            <ul class="check-list">${s.checks.map(c=>`<li>${escapeHtml(c)}</li>`).join('')}</ul>
-          </div>
-          <div class="detail-section">
-            <div class="detail-label">Real-world example</div>
-            <div class="example-box" style="border-left:3px solid ${p.color};background:${p.color}0d;border:1px solid ${p.color}30;border-left:3px solid ${p.color}">
-              <div class="example-label" style="color:${p.color}">Example scenario</div>
-              <div class="example-text" style="color:#1c2128">${escapeHtml(s.example)}</div>
+        <div class="step-findings-wrap">
+          <div class="findings-header">
+            <div class="findings-title" style="color:${p.color}">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v9a1 1 0 01-1 1H3a1 1 0 01-1-1V2z" stroke="${p.color}" stroke-width="1.4"/><path d="M4 6h6M4 8.5h4" stroke="${p.color}" stroke-width="1.4" stroke-linecap="round"/><rect x="5" y="1" width="4" height="2" rx="0.5" stroke="${p.color}" stroke-width="1.4"/></svg>
+              Record Your Findings
+            </div>
+            <div class="save-status" id="save-status-${si}">
+              <span class="si"></span><span id="save-text-${si}">${f&&f.savedAt?'Saved to cloud':'Not saved yet'}</span>
             </div>
           </div>
-          <div class="detail-section">
-            <div class="detail-label">Tools to use</div>
-            <div class="tags">${s.tools.map(t=>`<span class="tag tag-tool">${escapeHtml(t)}</span>`).join('')}</div>
-          </div>
-          <div class="detail-section">
-            <div class="detail-label">What to record</div>
-            <div class="output-row">
-              <div class="output-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,2.5" stroke="#15803d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="output-text">${escapeHtml(s.output)}</div>
-            </div>
-          </div>
-          <div class="findings-section">
-            <div class="findings-header">
-              <div class="findings-title" style="color:${p.color}">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v9a1 1 0 01-1 1H3a1 1 0 01-1-1V2z" stroke="${p.color}" stroke-width="1.4"/><path d="M4 6h6M4 8.5h4" stroke="${p.color}" stroke-width="1.4" stroke-linecap="round"/><rect x="5" y="1" width="4" height="2" rx="0.5" stroke="${p.color}" stroke-width="1.4"/></svg>
-                Record Your Findings
-              </div>
-              <div class="save-status" id="save-status-${si}">
-                <span class="si"></span><span id="save-text-${si}">${f&&f.savedAt?'Saved to cloud':'Not saved yet'}</span>
-              </div>
-            </div>
-            <div class="findings-fields">${renderFindingsFields(s,currentPhase,si)}</div>
-          </div>
+          <div class="findings-fields">${renderFindingsFields(s,currentPhase,si)}</div>
         </div>
       </div>`;
   });
@@ -1273,10 +1254,68 @@ function toggleCheck(si) {
   });
 }
 
-function toggleDetail(si) {
-  const det = document.getElementById(`det-${si}`), btn = document.getElementById(`btn-${si}`);
-  const open = det.classList.contains('visible');
-  det.classList.toggle('visible', !open); btn.textContent = open?'Details ▾':'Close ▴';
+function openGuidelineModal(pi, si) {
+  const p = PHASES[pi], s = p.steps[si];
+  const modal = document.getElementById('guideline-modal');
+  const color = p.color;
+
+  document.getElementById('guideline-title').textContent = s.name;
+  document.getElementById('guideline-phase').textContent = p.name;
+
+  document.getElementById('guideline-body').innerHTML = `
+    <div class="guide-section">
+      <div class="guide-label">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M1.5 2.5h10M1.5 5.5h7M1.5 8.5h8.5" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/></svg>
+        What to check
+      </div>
+      <ul class="guide-checklist">${s.checks.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-label">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="${color}" stroke-width="1.5"/><path d="M6.5 4v3.5M6.5 9v.3" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Real-world example
+      </div>
+      <div class="guide-example" style="border-left:3px solid ${color};background:${color}0d">
+        <div class="guide-example-label" style="color:${color}">Example scenario</div>
+        <div class="guide-example-text">${escapeHtml(s.example)}</div>
+      </div>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-label">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="2.5" width="10" height="8" rx="1.5" stroke="${color}" stroke-width="1.5"/><path d="M4.5 6.5h4M4.5 8.5h2" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Tools to use
+      </div>
+      <div class="guide-tools">${s.tools.map(t => `<span class="tag tag-tool">${escapeHtml(t)}</span>`).join('')}</div>
+    </div>
+
+    <div class="guide-section">
+      <div class="guide-label">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><polyline points="1.5,6.5 4.5,9.5 11,3" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        What to record
+      </div>
+      <div class="guide-output">
+        <div class="output-icon"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,2.5" stroke="#15803d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="output-text">${escapeHtml(s.output)}</div>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+  modal.style.opacity = '0';
+  requestAnimationFrame(() => { modal.style.opacity = '1'; modal.classList.add('visible'); });
+}
+
+function closeGuidelineModal() {
+  const modal = document.getElementById('guideline-modal');
+  modal.style.opacity = '0';
+  modal.classList.remove('visible');
+  setTimeout(() => { modal.style.display = 'none'; }, 200);
+}
+
+function handleGuidelineOverlayClick(e) {
+  if (e.target === document.getElementById('guideline-modal')) closeGuidelineModal();
 }
 
 // ─────────────────────────────────────────────
@@ -1437,7 +1476,6 @@ window.createNewBusiness      = createNewBusiness;
 window.backToDashboard        = backToDashboard;
 window.switchPhase            = switchPhase;
 window.toggleCheck            = toggleCheck;
-window.toggleDetail           = toggleDetail;
 window.setRating              = setRating;
 window.onFieldInput           = onFieldInput;
 window.openModal              = openModal;
