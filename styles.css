@@ -440,3 +440,83 @@ body { font-family: 'DM Sans', sans-serif; background: var(--main-bg); color: va
 
 /* ─── Save status error state ─── */
 .save-status.error { color: #dc2626; }
+
+/* ─── INFO BUTTON ─── */
+.info-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.info-btn:hover {
+  background: var(--ph-color, #2563eb);
+  border-color: var(--ph-color, #2563eb);
+  color: #fff;
+}
+
+/* ─── STEP FINDINGS WRAP (replaces step-detail) ─── */
+.step-findings-wrap {
+  border-top: 1px solid var(--border-light);
+  background: #fafbfc;
+}
+.step-findings-wrap .findings-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px 10px 18px;
+  border-bottom: 1px solid var(--border-light);
+  background: #fff;
+}
+.step-findings-wrap .findings-fields {
+  padding: 12px 14px 14px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+/* ─── GUIDELINE MODAL ─── */
+.modal-guideline {
+  max-width: 560px;
+}
+.guide-section {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.guide-section:last-child { border-bottom: none; padding-bottom: 0; }
+.guide-section:first-child { padding-top: 0; }
+.guide-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--text-tertiary);
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.guide-checklist {
+  list-style: none; display: flex; flex-direction: column; gap: 4px;
+}
+.guide-checklist li {
+  font-size: 13.5px; color: var(--text-secondary);
+  line-height: 1.6; padding-left: 16px; position: relative;
+}
+.guide-checklist li::before {
+  content: '→'; position: absolute; left: 0;
+  color: var(--text-tertiary); font-size: 11px; top: 3px;
+}
+.guide-example {
+  border-radius: var(--radius-sm); padding: 12px 14px;
+}
+.guide-example-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.guide-example-text {
+  font-size: 13.5px; line-height: 1.75; color: var(--text-primary);
+}
+.guide-tools {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.guide-output {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: #f9fafb; border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+}
