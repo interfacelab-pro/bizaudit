@@ -121,6 +121,21 @@
   </div>
 </div>
 
+<!-- ─── MODAL: GUIDELINE ─── -->
+<div class="modal-overlay guideline-overlay" id="guideline-modal" onclick="handleGuidelineOverlayClick(event)" style="display:none;opacity:0;transition:opacity 0.2s">
+  <div class="modal modal-guideline">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-title" id="guideline-title">Step Guide</div>
+        <div class="modal-sub" id="guideline-phase"></div>
+      </div>
+      <button class="modal-close" onclick="closeGuidelineModal()">✕</button>
+    </div>
+    <div class="modal-body" id="guideline-body" style="padding:20px 24px;display:flex;flex-direction:column;gap:0">
+    </div>
+  </div>
+</div>
+
 <!-- ─── MODAL: FINDINGS ─── -->
 <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)" style="display:none">
   <div class="modal">
