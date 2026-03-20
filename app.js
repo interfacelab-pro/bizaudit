@@ -1467,20 +1467,23 @@ function downloadExport(slug) {
 // ─────────────────────────────────────────────
 // EXPOSE FUNCTIONS TO HTML onclick HANDLERS
 // ─────────────────────────────────────────────
-window.handleLogin            = handleLogin;
-window.handleSignOut          = handleSignOut;
-window.openNewBusinessModal   = openNewBusinessModal;
-window.closeNewBusinessModal  = closeNewBusinessModal;
-window.handleNewBizOverlayClick = handleNewBizOverlayClick;
-window.createNewBusiness      = createNewBusiness;
-window.backToDashboard        = backToDashboard;
-window.switchPhase            = switchPhase;
-window.toggleCheck            = toggleCheck;
-window.setRating              = setRating;
-window.onFieldInput           = onFieldInput;
-window.openModal              = openModal;
-window.closeModal             = closeModal;
-window.handleOverlayClick     = handleOverlayClick;
-window.switchTab              = switchTab;
-window.copyExport             = copyExport;
-window.downloadExport         = downloadExport;
+window.handleLogin               = handleLogin;
+window.handleSignOut             = handleSignOut;
+window.openNewBusinessModal      = openNewBusinessModal;
+window.closeNewBusinessModal     = closeNewBusinessModal;
+window.handleNewBizOverlayClick  = handleNewBizOverlayClick;
+window.createNewBusiness         = createNewBusiness;
+window.backToDashboard           = backToDashboard;
+window.switchPhase               = switchPhase;
+window.toggleCheck               = toggleCheck;
+window.setRating                 = setRating;
+window.onFieldInput              = onFieldInput;
+window.openModal                 = openModal;
+window.closeModal                = closeModal;
+window.handleOverlayClick        = handleOverlayClick;
+window.switchTab                 = switchTab;
+window.copyExport                = copyExport;
+window.downloadExport            = downloadExport;
+window.openGuidelineModal        = openGuidelineModal;
+window.closeGuidelineModal       = closeGuidelineModal;
+window.handleGuidelineOverlayClick = handleGuidelineOverlayClick;
